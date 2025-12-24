@@ -1,0 +1,70 @@
+{
+  "products": [
+    {
+      "id": "prod_001",
+      "name": "iPhone 15 Pro Max Case",
+      "category": "phone-covers",
+      "price": 2500,
+      "description": "Premium silicone case with MagSafe compatibility for iPhone 15 Pro Max",
+      "image": "/images/products/placeholder-1.jpg",
+      "published": true,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "prod_002",
+      "name": "Samsung Galaxy S24 Ultra Cover",
+      "category": "phone-covers",
+      "price": 2200,
+      "description": "Shockproof protective case with built-in kickstand",
+      "image": "/images/products/placeholder-2.jpg",
+      "published": true,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "prod_003",
+      "name": "Fast Charging Cable USB-C",
+      "category": "chargers-cables",
+      "price": 850,
+      "description": "1.5m braided USB-C cable with 100W fast charging support",
+      "image": "/images/products/placeholder-3.jpg",
+      "published": true,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "prod_004",
+      "name": "20W USB-C Power Adapter",
+      "category": "chargers-cables",
+      "price": 1800,
+      "description": "Original quality 20W fast charger for iPhone and Android",
+      "image": "/images/products/placeholder-4.jpg",
+      "published": true,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "prod_005",
+      "name": "Tempered Glass Screen Protector",
+      "category": "screen-protectors",
+      "price": 750,
+      "description": "9H hardness tempered glass with oleophobic coating",
+      "image": "/images/products/placeholder-5.jpg",
+      "published": true,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "prod_006",
+      "name": "Wireless Earbuds Pro",
+      "category": "audio",
+      "price": 4500,
+      "description": "TWS earbuds with active noise cancellation and 30hr battery",
+      "image": "/images/products/placeholder-6.jpg",
+      "published": false,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    }
+  ]
+}

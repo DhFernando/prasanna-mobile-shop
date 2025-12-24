@@ -2,9 +2,11 @@
  * ProductCard Molecule
  * Displays a product/service category with icon and description
  * Premium card design with smooth hover effects
+ * Links to the shop page filtered by category
  */
 
 import React from 'react';
+import Link from 'next/link';
 import Icon from '../atoms/Icon';
 import { CardTitle, BodyText } from '../atoms/Typography';
 
@@ -12,6 +14,7 @@ interface ProductCardProps {
   title: string;
   description: string;
   icon: 'smartphone' | 'battery' | 'headphones' | 'cable' | 'tools' | 'shield';
+  categorySlug?: string; // Category ID for filtering on shop page
   delay?: number;
 }
 
@@ -19,12 +22,18 @@ const ProductCard: React.FC<ProductCardProps> = ({
   title, 
   description, 
   icon,
+  categorySlug,
   delay = 0 
 }) => {
+  // Link to shop page with category filter if provided
+  const href = categorySlug ? `/shop?category=${categorySlug}` : '/shop';
+
   return (
-    <div 
+    <Link 
+      href={href}
       className="
         group
+        block
         relative
         bg-white rounded-2xl
         p-7 sm:p-8
@@ -88,7 +97,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
         {description}
       </BodyText>
 
-      {/* Arrow indicator */}
+      {/* View Products CTA */}
       <div className="
         mt-5 pt-5 
         border-t border-stone-100 
@@ -98,14 +107,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
         group-hover:text-teal-600
         transition-all duration-300
       ">
-        <span className="text-sm font-medium">Learn more</span>
+        <span className="text-sm font-medium">View Products</span>
         <Icon 
           name="arrow-right" 
           size={16} 
-          className="transform group-hover:translate-x-1 transition-transform duration-300" 
+          className="transform group-hover:translate-x-1 transition-transform duration-300 ml-auto" 
         />
       </div>
-    </div>
+    </Link>
   );
 };
 

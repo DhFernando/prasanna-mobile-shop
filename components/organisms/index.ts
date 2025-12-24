@@ -12,4 +12,5 @@ export { default as Reviews } from './Reviews';
 export { default as Contact } from './Contact';
 export { default as Footer } from './Footer';
 export { default as MobileCTA } from './MobileCTA';
+export { default as AnnouncementsBanner } from './AnnouncementsBanner';
 

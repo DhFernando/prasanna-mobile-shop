@@ -21,7 +21,9 @@ interface IconProps {
     | 'menu'
     | 'close'
     | 'arrow-right'
+    | 'arrow-left'
     | 'arrow-down'
+    | 'search'
     | 'smartphone'
     | 'battery'
     | 'headphones'
@@ -103,6 +105,18 @@ const Icon: React.FC<IconProps> = ({ name, size = 24, className = '' }) => {
       <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
         <line x1="5" y1="12" x2="19" y2="12" />
         <polyline points="12 5 19 12 12 19" />
+      </svg>
+    ),
+    'arrow-left': (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <line x1="19" y1="12" x2="5" y2="12" />
+        <polyline points="12 19 5 12 12 5" />
+      </svg>
+    ),
+    search: (
+      <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
     ),
     smartphone: (

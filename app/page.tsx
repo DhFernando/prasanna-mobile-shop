@@ -13,11 +13,15 @@ import {
   Contact,
   Footer,
   MobileCTA,
+  AnnouncementsBanner,
 } from '@/components';
 
 export default function Home() {
   return (
     <>
+      {/* Announcements Banner - Shows active announcements */}
+      <AnnouncementsBanner />
+      
       {/* Header with navigation */}
       <Header />
       

@@ -14,9 +14,9 @@ const Hero: React.FC = () => {
       id="home"
       className="
         relative
-        min-h-screen
+        min-h-[calc(100vh-60px)]
         flex items-center
-        pt-24 pb-20 sm:pt-32 sm:pb-28
+        py-16 sm:py-20
         overflow-hidden
       "
     >

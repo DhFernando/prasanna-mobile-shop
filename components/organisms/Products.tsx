@@ -2,9 +2,11 @@
  * Products Organism
  * Products and services showcase section
  * Premium card design with hover effects
+ * Links to shop page with category filters
  */
 
 import React from 'react';
+import Link from 'next/link';
 import { SectionHeading, BodyText, Subtitle, Icon, Button } from '../atoms';
 import { ProductCard } from '../molecules';
 
@@ -14,37 +16,37 @@ const Products: React.FC = () => {
       title: 'Mobile Accessories',
       description: 'Wide range of accessories including earphones, power banks, holders, and more for all phone brands.',
       icon: 'smartphone' as const,
-      color: 'teal',
+      categorySlug: 'accessories',
     },
     {
       title: 'Chargers & Cables',
       description: 'Original and high-quality charging cables and adapters for fast and safe charging.',
       icon: 'battery' as const,
-      color: 'orange',
+      categorySlug: 'chargers-cables',
     },
     {
       title: 'Phone Covers',
       description: 'Stylish and protective cases for iPhone, Samsung, and all popular smartphone models.',
       icon: 'shield' as const,
-      color: 'indigo',
+      categorySlug: 'phone-covers',
     },
     {
       title: 'Screen Protectors',
       description: 'Tempered glass and film protectors to keep your screen scratch-free and protected.',
       icon: 'smartphone' as const,
-      color: 'emerald',
+      categorySlug: 'screen-protectors',
     },
     {
       title: 'Audio Accessories',
       description: 'Earphones, earbuds, Bluetooth speakers, and audio adapters for superior sound.',
       icon: 'headphones' as const,
-      color: 'purple',
+      categorySlug: 'audio',
     },
     {
-      title: 'Repair Services',
-      description: 'Professional phone repair services including screen replacement and battery replacement.',
-      icon: 'tools' as const,
-      color: 'rose',
+      title: 'Power Banks',
+      description: 'Portable chargers and power banks to keep your devices powered on the go.',
+      icon: 'battery' as const,
+      categorySlug: 'power-banks',
     },
   ];
 
@@ -91,6 +93,7 @@ const Products: React.FC = () => {
                 title={product.title}
                 description={product.description}
                 icon={product.icon}
+                categorySlug={product.categorySlug}
                 delay={index * 80}
               />
             ))}
@@ -107,17 +110,26 @@ const Products: React.FC = () => {
               shadow-lg shadow-stone-200/50
             ">
               <div className="text-center sm:text-left">
-                <p className="font-medium text-stone-800 mb-1">Can&apos;t find what you&apos;re looking for?</p>
-                <p className="text-sm text-stone-500">Give us a call and we&apos;ll help you find it!</p>
+                <p className="font-medium text-stone-800 mb-1">Browse all our products</p>
+                <p className="text-sm text-stone-500">Visit our shop to see everything we offer!</p>
               </div>
-              <Button
-                href="tel:0722902299"
-                variant="primary"
-                size="md"
-                icon={<Icon name="phone" size={18} />}
+              <Link
+                href="/shop"
+                className="
+                  inline-flex items-center gap-2
+                  px-6 py-3
+                  bg-gradient-to-r from-teal-600 to-emerald-600
+                  hover:from-teal-700 hover:to-emerald-700
+                  text-white font-semibold
+                  rounded-xl
+                  shadow-lg shadow-teal-500/30
+                  hover:shadow-xl hover:shadow-teal-500/40
+                  transition-all duration-300
+                "
               >
-                072 290 2299
-              </Button>
+                <Icon name="search" size={18} />
+                Browse Shop
+              </Link>
             </div>
           </div>
         </div>

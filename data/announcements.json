@@ -1,0 +1,23 @@
+{
+  "announcements": [
+    {
+      "id": "ann_001",
+      "title": "Christmas Sale - Up to 30% Off!",
+      "message": "Celebrate the season with amazing discounts on all phone covers and accessories. Valid until December 31st.",
+      "type": "promo",
+      "active": true,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "expiresAt": "2024-12-31T23:59:59Z"
+    },
+    {
+      "id": "ann_002",
+      "title": "New Arrivals - iPhone 16 Accessories",
+      "message": "Check out our latest collection of iPhone 16 cases, chargers, and screen protectors!",
+      "type": "info",
+      "active": true,
+      "createdAt": "2024-12-18T10:00:00Z",
+      "expiresAt": null
+    }
+  ]
+}
+

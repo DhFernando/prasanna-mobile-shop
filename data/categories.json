@@ -1,0 +1,41 @@
+{
+  "categories": [
+    {
+      "id": "phone-covers",
+      "name": "Phone Covers",
+      "description": "Protective cases and covers for all phone models",
+      "createdAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "chargers-cables",
+      "name": "Chargers & Cables",
+      "description": "Fast chargers, cables, and power adapters",
+      "createdAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "screen-protectors",
+      "name": "Screen Protectors",
+      "description": "Tempered glass and film protectors",
+      "createdAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "audio",
+      "name": "Audio Accessories",
+      "description": "Earphones, earbuds, speakers, and audio adapters",
+      "createdAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "power-banks",
+      "name": "Power Banks",
+      "description": "Portable chargers and power banks",
+      "createdAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "accessories",
+      "name": "Other Accessories",
+      "description": "Phone holders, stands, and miscellaneous accessories",
+      "createdAt": "2024-12-20T10:00:00Z"
+    }
+  ]
+}
+
