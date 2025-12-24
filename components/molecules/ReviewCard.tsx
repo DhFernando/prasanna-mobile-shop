@@ -62,17 +62,17 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
       {/* Stars */}
       <div className="flex items-center gap-1 mb-5 relative z-10">
         {[...Array(5)].map((_, i) => (
-          <Icon 
+          <span 
             key={i}
-            name="star" 
-            size={20} 
             className={`
               ${i < rating ? 'text-amber-400' : 'text-stone-200'}
               group-hover:scale-110
               transition-transform duration-300
             `}
             style={{ transitionDelay: `${i * 30}ms` }}
-          />
+          >
+            <Icon name="star" size={20} />
+          </span>
         ))}
         <span className="ml-2 text-sm font-semibold text-amber-600">{rating}.0</span>
       </div>
