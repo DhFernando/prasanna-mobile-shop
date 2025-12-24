@@ -1,14 +1,14 @@
 /**
  * Products Management Page
- * CRUD operations for products
+ * CRUD operations for products with stock management and pagination
  */
 
 'use client';
 
 import React, { useEffect, useState, useCallback } from 'react';
-import { Modal, ConfirmDialog, DataTable, FormInput, FormCheckbox } from '@/components/admin';
+import { Modal, ConfirmDialog, FormInput, FormCheckbox } from '@/components/admin';
 import { Icon } from '@/components/atoms';
-import { Product, Category, ProductFormData } from '@/lib/types';
+import { Product, Category, ProductFormData, StockStatus } from '@/lib/types';
 
 const initialFormData: ProductFormData = {
   name: '',
@@ -17,7 +17,11 @@ const initialFormData: ProductFormData = {
   description: '',
   image: '/images/products/placeholder.jpg',
   published: false,
+  stockQuantity: null,
+  stockStatus: 'in_stock',
 };
+
+const ITEMS_PER_PAGE = 10;
 
 export default function ProductsPage() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -25,14 +29,23 @@ export default function ProductsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   
+  // Pagination & Filters
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterCategory, setFilterCategory] = useState('');
+  const [filterStock, setFilterStock] = useState('');
+  
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
+  const [stockProduct, setStockProduct] = useState<Product | null>(null);
   
   // Form state
   const [formData, setFormData] = useState<ProductFormData>(initialFormData);
+  const [stockFormData, setStockFormData] = useState({ quantity: '', status: 'in_stock' as StockStatus });
 
   // Fetch products and categories
   const fetchData = useCallback(async () => {
@@ -58,6 +71,28 @@ export default function ProductsPage() {
     fetchData();
   }, [fetchData]);
 
+  // Filter products
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = !searchQuery || 
+      product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      product.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = !filterCategory || product.category === filterCategory;
+    const matchesStock = !filterStock || product.stockStatus === filterStock;
+    return matchesSearch && matchesCategory && matchesStock;
+  });
+
+  // Paginate
+  const totalPages = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
+  const paginatedProducts = filteredProducts.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, filterCategory, filterStock]);
+
   // Handle form input changes
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -65,7 +100,7 @@ export default function ProductsPage() {
     const { name, value, type } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'number' ? parseFloat(value) || 0 : value,
+      [name]: type === 'number' ? (value === '' ? null : parseFloat(value)) : value,
     }));
   };
 
@@ -92,8 +127,20 @@ export default function ProductsPage() {
       description: product.description,
       image: product.image,
       published: product.published,
+      stockQuantity: product.stockQuantity,
+      stockStatus: product.stockStatus || 'in_stock',
     });
     setIsModalOpen(true);
+  };
+
+  // Open stock modal
+  const openStockModal = (product: Product) => {
+    setStockProduct(product);
+    setStockFormData({
+      quantity: product.stockQuantity?.toString() || '',
+      status: product.stockStatus || 'in_stock',
+    });
+    setIsStockModalOpen(true);
   };
 
   // Handle form submit
@@ -123,6 +170,34 @@ export default function ProductsPage() {
     } catch (error) {
       console.error('Error saving product:', error);
       alert('An error occurred');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Handle stock update
+  const handleStockUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!stockProduct) return;
+    setIsSubmitting(true);
+
+    try {
+      const res = await fetch(`/api/products/${stockProduct.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          stockQuantity: stockFormData.quantity === '' ? null : parseInt(stockFormData.quantity),
+          stockStatus: stockFormData.status,
+        }),
+      });
+
+      if (res.ok) {
+        setIsStockModalOpen(false);
+        setStockProduct(null);
+        fetchData();
+      }
+    } catch (error) {
+      console.error('Error updating stock:', error);
     } finally {
       setIsSubmitting(false);
     }
@@ -164,62 +239,37 @@ export default function ProductsPage() {
     }
   };
 
-  // Table columns
-  const columns = [
-    {
-      key: 'name',
-      header: 'Product',
-      render: (product: Product) => (
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-stone-200 flex items-center justify-center flex-shrink-0">
-            <Icon name="smartphone" size={18} className="text-stone-500" />
-          </div>
-          <div>
-            <p className="font-medium text-stone-900">{product.name}</p>
-            <p className="text-xs text-stone-500">{product.id}</p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      key: 'category',
-      header: 'Category',
-      render: (product: Product) => {
-        const cat = categories.find(c => c.id === product.category);
-        return (
-          <span className="text-stone-600">
-            {cat?.name || product.category}
+  // Get stock status badge
+  const getStockBadge = (product: Product) => {
+    const statusConfig: Record<StockStatus, { bg: string; text: string; label: string }> = {
+      in_stock: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'In Stock' },
+      low_stock: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Low Stock' },
+      out_of_stock: { bg: 'bg-red-100', text: 'text-red-700', label: 'Out of Stock' },
+      coming_soon: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Coming Soon' },
+    };
+
+    const status = product.stockStatus || 'in_stock';
+    const config = statusConfig[status];
+
+    return (
+      <div className="flex flex-col items-start gap-1">
+        <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${config.bg} ${config.text}`}>
+          {config.label}
+        </span>
+        {product.stockQuantity !== null && (
+          <span className="text-xs text-stone-500">
+            Qty: {product.stockQuantity}
           </span>
-        );
-      },
-    },
-    {
-      key: 'price',
-      header: 'Price',
-      render: (product: Product) => (
-        <span className="font-medium text-stone-900">
-          Rs. {product.price.toLocaleString()}
-        </span>
-      ),
-    },
-    {
-      key: 'published',
-      header: 'Status',
-      render: (product: Product) => (
-        <span className={`
-          inline-flex items-center gap-1.5
-          px-2.5 py-1 rounded-full text-xs font-medium
-          ${product.published 
-            ? 'bg-emerald-100 text-emerald-700' 
-            : 'bg-stone-100 text-stone-500'
-          }
-        `}>
-          <span className={`w-1.5 h-1.5 rounded-full ${product.published ? 'bg-emerald-500' : 'bg-stone-400'}`} />
-          {product.published ? 'Published' : 'Draft'}
-        </span>
-      ),
-    },
-  ];
+        )}
+      </div>
+    );
+  };
+
+  // Get category name
+  const getCategoryName = (categoryId: string) => {
+    const cat = categories.find(c => c.id === categoryId);
+    return cat?.name || categoryId;
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -230,7 +280,7 @@ export default function ProductsPage() {
             Products
           </h1>
           <p className="text-stone-500">
-            Manage your mobile accessories inventory
+            Manage your mobile accessories inventory ({filteredProducts.length} items)
           </p>
         </div>
         <button
@@ -250,20 +300,211 @@ export default function ProductsPage() {
         </button>
       </div>
 
+      {/* Filters */}
+      <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          {/* Search */}
+          <div className="relative">
+            <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+            <input
+              type="text"
+              placeholder="Search products..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+            />
+          </div>
+
+          {/* Category Filter */}
+          <select
+            value={filterCategory}
+            onChange={(e) => setFilterCategory(e.target.value)}
+            className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+          >
+            <option value="">All Categories</option>
+            {categories.map(cat => (
+              <option key={cat.id} value={cat.id}>{cat.name}</option>
+            ))}
+          </select>
+
+          {/* Stock Filter */}
+          <select
+            value={filterStock}
+            onChange={(e) => setFilterStock(e.target.value)}
+            className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+          >
+            <option value="">All Stock Status</option>
+            <option value="in_stock">In Stock</option>
+            <option value="low_stock">Low Stock</option>
+            <option value="out_of_stock">Out of Stock</option>
+            <option value="coming_soon">Coming Soon</option>
+          </select>
+
+          {/* Clear Filters */}
+          {(searchQuery || filterCategory || filterStock) && (
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setFilterCategory('');
+                setFilterStock('');
+              }}
+              className="px-4 py-2.5 text-stone-600 hover:text-stone-800 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
+            >
+              Clear Filters
+            </button>
+          )}
+        </div>
+      </div>
+
       {/* Products Table */}
-      <DataTable
-        data={products}
-        columns={columns}
-        getRowId={(p) => p.id}
-        onEdit={openEditModal}
-        onDelete={(p) => {
-          setDeletingProduct(p);
-          setIsDeleteDialogOpen(true);
-        }}
-        onTogglePublish={handleTogglePublish}
-        isLoading={isLoading}
-        emptyMessage="No products yet. Add your first product!"
-      />
+      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+        {isLoading ? (
+          <div className="p-12 text-center">
+            <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-stone-500">Loading products...</p>
+          </div>
+        ) : paginatedProducts.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
+              <Icon name="smartphone" size={28} className="text-stone-400" />
+            </div>
+            <p className="text-stone-600 font-medium mb-1">No products found</p>
+            <p className="text-sm text-stone-500">
+              {searchQuery || filterCategory || filterStock 
+                ? 'Try adjusting your filters' 
+                : 'Add your first product!'}
+            </p>
+          </div>
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-stone-50 border-b border-stone-200">
+                  <tr>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Product</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Category</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Price</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Stock</th>
+                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Status</th>
+                    <th className="text-right py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-stone-100">
+                  {paginatedProducts.map((product) => (
+                    <tr key={product.id} className="hover:bg-stone-50 transition-colors">
+                      <td className="py-3 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-stone-200 flex items-center justify-center flex-shrink-0">
+                            <Icon name="smartphone" size={18} className="text-stone-500" />
+                          </div>
+                          <div>
+                            <p className="font-medium text-stone-900">{product.name}</p>
+                            <p className="text-xs text-stone-500 line-clamp-1">{product.description}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="text-stone-600">{getCategoryName(product.category)}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        <span className="font-medium text-stone-900">Rs. {product.price.toLocaleString()}</span>
+                      </td>
+                      <td className="py-3 px-4">
+                        {getStockBadge(product)}
+                      </td>
+                      <td className="py-3 px-4">
+                        <button
+                          onClick={() => handleTogglePublish(product)}
+                          className={`
+                            inline-flex items-center gap-1.5
+                            px-2.5 py-1 rounded-full text-xs font-medium
+                            transition-colors cursor-pointer
+                            ${product.published 
+                              ? 'bg-emerald-100 text-emerald-700 hover:bg-emerald-200' 
+                              : 'bg-stone-100 text-stone-500 hover:bg-stone-200'
+                            }
+                          `}
+                        >
+                          <span className={`w-1.5 h-1.5 rounded-full ${product.published ? 'bg-emerald-500' : 'bg-stone-400'}`} />
+                          {product.published ? 'Published' : 'Draft'}
+                        </button>
+                      </td>
+                      <td className="py-3 px-4">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => openStockModal(product)}
+                            className="p-2 text-stone-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
+                            title="Update Stock"
+                          >
+                            <Icon name="tag" size={16} />
+                          </button>
+                          <button
+                            onClick={() => openEditModal(product)}
+                            className="p-2 text-stone-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                            title="Edit"
+                          >
+                            <Icon name="tools" size={16} />
+                          </button>
+                          <button
+                            onClick={() => {
+                              setDeletingProduct(product);
+                              setIsDeleteDialogOpen(true);
+                            }}
+                            className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            title="Delete"
+                          >
+                            <Icon name="close" size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex items-center justify-between px-4 py-3 border-t border-stone-200">
+                <p className="text-sm text-stone-500">
+                  Showing {((currentPage - 1) * ITEMS_PER_PAGE) + 1} to {Math.min(currentPage * ITEMS_PER_PAGE, filteredProducts.length)} of {filteredProducts.length}
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    disabled={currentPage === 1}
+                    className="px-3 py-1.5 text-sm text-stone-600 bg-stone-100 hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                  >
+                    Previous
+                  </button>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map(page => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`
+                        w-8 h-8 text-sm font-medium rounded-lg transition-colors
+                        ${currentPage === page 
+                          ? 'bg-teal-600 text-white' 
+                          : 'text-stone-600 hover:bg-stone-100'
+                        }
+                      `}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    disabled={currentPage === totalPages}
+                    className="px-3 py-1.5 text-sm text-stone-600 bg-stone-100 hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
+        )}
+      </div>
 
       {/* Add/Edit Modal */}
       <Modal
@@ -321,6 +562,32 @@ export default function ProductsPage() {
             placeholder="/images/products/placeholder.jpg"
           />
 
+          <div className="grid grid-cols-2 gap-4">
+            <FormInput
+              label="Stock Quantity (optional)"
+              name="stockQuantity"
+              type="number"
+              value={formData.stockQuantity ?? ''}
+              onChange={handleInputChange}
+              min={0}
+              placeholder="Leave empty if not tracking"
+            />
+
+            <FormInput
+              label="Stock Status"
+              name="stockStatus"
+              type="select"
+              value={formData.stockStatus}
+              onChange={handleInputChange}
+              options={[
+                { value: 'in_stock', label: 'In Stock' },
+                { value: 'low_stock', label: 'Low Stock' },
+                { value: 'out_of_stock', label: 'Out of Stock' },
+                { value: 'coming_soon', label: 'Coming Soon' },
+              ]}
+            />
+          </div>
+
           <FormCheckbox
             label="Publish immediately"
             name="published"
@@ -370,6 +637,75 @@ export default function ProductsPage() {
         </form>
       </Modal>
 
+      {/* Stock Update Modal */}
+      <Modal
+        isOpen={isStockModalOpen}
+        onClose={() => {
+          setIsStockModalOpen(false);
+          setStockProduct(null);
+        }}
+        title="Update Stock"
+        size="sm"
+      >
+        <form onSubmit={handleStockUpdate}>
+          <div className="mb-4 p-3 bg-stone-50 rounded-lg">
+            <p className="font-medium text-stone-900">{stockProduct?.name}</p>
+            <p className="text-sm text-stone-500">Current: {stockProduct?.stockQuantity ?? 'Not tracking'}</p>
+          </div>
+
+          <FormInput
+            label="Stock Quantity"
+            name="quantity"
+            type="number"
+            value={stockFormData.quantity}
+            onChange={(e) => setStockFormData(prev => ({ ...prev, quantity: e.target.value }))}
+            min={0}
+            placeholder="Leave empty to stop tracking"
+          />
+
+          <FormInput
+            label="Stock Status"
+            name="status"
+            type="select"
+            value={stockFormData.status}
+            onChange={(e) => setStockFormData(prev => ({ ...prev, status: e.target.value as StockStatus }))}
+            options={[
+              { value: 'in_stock', label: 'In Stock' },
+              { value: 'low_stock', label: 'Low Stock' },
+              { value: 'out_of_stock', label: 'Out of Stock' },
+              { value: 'coming_soon', label: 'Coming Soon' },
+            ]}
+          />
+
+          <div className="flex gap-3 mt-6 pt-4 border-t border-stone-200">
+            <button
+              type="button"
+              onClick={() => {
+                setIsStockModalOpen(false);
+                setStockProduct(null);
+              }}
+              className="flex-1 py-3 px-4 rounded-xl font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="flex-1 py-3 px-4 rounded-xl font-semibold bg-gradient-to-r from-amber-500 to-amber-400 text-white hover:from-amber-400 hover:to-amber-300 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+            >
+              {isSubmitting ? (
+                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Icon name="check" size={18} />
+                  Update Stock
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
       {/* Delete Confirmation */}
       <ConfirmDialog
         isOpen={isDeleteDialogOpen}
@@ -387,4 +723,3 @@ export default function ProductsPage() {
     </div>
   );
 }
-

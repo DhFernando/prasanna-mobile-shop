@@ -14,13 +14,14 @@ import { useAuth } from '@/contexts/AuthContext';
 interface NavItem {
   label: string;
   href: string;
-  icon: 'smartphone' | 'shield' | 'star' | 'check' | 'tag' | 'users' | 'zap' | 'sparkles';
+  icon: 'smartphone' | 'shield' | 'star' | 'check' | 'tag' | 'users' | 'zap' | 'sparkles' | 'heart';
 }
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', href: '/admin', icon: 'zap' },
   { label: 'Products', href: '/admin/products', icon: 'smartphone' },
   { label: 'Categories', href: '/admin/categories', icon: 'tag' },
+  { label: 'Sales', href: '/admin/sales', icon: 'heart' },
   { label: 'Announcements', href: '/admin/announcements', icon: 'sparkles' },
 ];
 

@@ -8,6 +8,8 @@
       "description": "Premium silicone case with MagSafe compatibility for iPhone 15 Pro Max",
       "image": "/images/products/placeholder-1.jpg",
       "published": true,
+      "stockQuantity": 15,
+      "stockStatus": "in_stock",
       "createdAt": "2024-12-20T10:00:00Z",
       "updatedAt": "2024-12-20T10:00:00Z"
     },
@@ -19,6 +21,8 @@
       "description": "Shockproof protective case with built-in kickstand",
       "image": "/images/products/placeholder-2.jpg",
       "published": true,
+      "stockQuantity": 8,
+      "stockStatus": "in_stock",
       "createdAt": "2024-12-20T10:00:00Z",
       "updatedAt": "2024-12-20T10:00:00Z"
     },
@@ -30,6 +34,8 @@
       "description": "1.5m braided USB-C cable with 100W fast charging support",
       "image": "/images/products/placeholder-3.jpg",
       "published": true,
+      "stockQuantity": 25,
+      "stockStatus": "in_stock",
       "createdAt": "2024-12-20T10:00:00Z",
       "updatedAt": "2024-12-20T10:00:00Z"
     },
@@ -41,6 +47,8 @@
       "description": "Original quality 20W fast charger for iPhone and Android",
       "image": "/images/products/placeholder-4.jpg",
       "published": true,
+      "stockQuantity": 3,
+      "stockStatus": "low_stock",
       "createdAt": "2024-12-20T10:00:00Z",
       "updatedAt": "2024-12-20T10:00:00Z"
     },
@@ -52,6 +60,8 @@
       "description": "9H hardness tempered glass with oleophobic coating",
       "image": "/images/products/placeholder-5.jpg",
       "published": true,
+      "stockQuantity": null,
+      "stockStatus": "in_stock",
       "createdAt": "2024-12-20T10:00:00Z",
       "updatedAt": "2024-12-20T10:00:00Z"
     },
@@ -63,6 +73,8 @@
       "description": "TWS earbuds with active noise cancellation and 30hr battery",
       "image": "/images/products/placeholder-6.jpg",
       "published": false,
+      "stockQuantity": 0,
+      "stockStatus": "coming_soon",
       "createdAt": "2024-12-20T10:00:00Z",
       "updatedAt": "2024-12-20T10:00:00Z"
     }

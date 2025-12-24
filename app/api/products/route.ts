@@ -43,6 +43,8 @@ export async function POST(request: NextRequest) {
       description: body.description || '',
       image: body.image || '/images/products/placeholder.jpg',
       published: body.published ?? false,
+      stockQuantity: body.stockQuantity ?? null,
+      stockStatus: body.stockStatus ?? 'in_stock',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };

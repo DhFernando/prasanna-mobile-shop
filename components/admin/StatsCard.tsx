@@ -9,7 +9,7 @@ import { Icon } from '@/components/atoms';
 interface StatsCardProps {
   title: string;
   value: number | string;
-  icon: 'smartphone' | 'shield' | 'star' | 'check' | 'tag' | 'users' | 'zap' | 'sparkles';
+  icon: 'smartphone' | 'shield' | 'star' | 'check' | 'tag' | 'users' | 'zap' | 'sparkles' | 'heart';
   color: 'teal' | 'amber' | 'indigo' | 'emerald' | 'orange' | 'rose';
   subtitle?: string;
 }

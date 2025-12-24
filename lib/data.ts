@@ -5,7 +5,7 @@
 
 import fs from 'fs';
 import path from 'path';
-import { Product, Category, Announcement } from './types';
+import { Product, Category, Announcement, Sale } from './types';
 
 const DATA_DIR = path.join(process.cwd(), 'data');
 
@@ -153,8 +153,59 @@ export function deleteAnnouncement(id: string): boolean {
   return true;
 }
 
+// Sales
+export function getSales(): Sale[] {
+  const data = readJsonFile<{ sales: Sale[] }>('sales.json');
+  return data.sales;
+}
+
+export function getSaleById(id: string): Sale | undefined {
+  const sales = getSales();
+  return sales.find(s => s.id === id);
+}
+
+export function saveSales(sales: Sale[]): void {
+  writeJsonFile('sales.json', { sales });
+}
+
+export function addSale(sale: Sale): void {
+  const sales = getSales();
+  sales.push(sale);
+  saveSales(sales);
+}
+
+export function updateSale(id: string, updates: Partial<Sale>): Sale | null {
+  const sales = getSales();
+  const index = sales.findIndex(s => s.id === id);
+  if (index === -1) return null;
+  
+  sales[index] = { ...sales[index], ...updates };
+  saveSales(sales);
+  return sales[index];
+}
+
+export function deleteSale(id: string): boolean {
+  const sales = getSales();
+  const filtered = sales.filter(s => s.id !== id);
+  if (filtered.length === sales.length) return false;
+  
+  saveSales(filtered);
+  return true;
+}
+
 // Generate unique ID
 export function generateId(prefix: string): string {
   return `${prefix}_${Date.now().toString(36)}_${Math.random().toString(36).substring(2, 7)}`;
+}
+
+// Generic read/write for backward compatibility
+export async function readData(type: string): Promise<Record<string, unknown>> {
+  const filename = `${type}.json`;
+  return readJsonFile<Record<string, unknown>>(filename);
+}
+
+export async function writeData(type: string, data: Record<string, unknown>): Promise<void> {
+  const filename = `${type}.json`;
+  writeJsonFile(filename, data);
 }
 

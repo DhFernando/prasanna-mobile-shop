@@ -18,6 +18,8 @@ interface Product {
   description: string;
   image: string;
   published: boolean;
+  stockQuantity: number | null;
+  stockStatus: 'in_stock' | 'low_stock' | 'out_of_stock' | 'coming_soon';
 }
 
 interface Category {
@@ -415,8 +417,20 @@ function ProductCard({
     `Hi! I'm interested in "${product.name}" (${formatPrice(product.price)}). Is it available?`
   );
 
+  // Stock status config
+  const stockConfig: Record<string, { bg: string; text: string; label: string }> = {
+    in_stock: { bg: 'bg-emerald-100', text: 'text-emerald-700', label: 'In Stock' },
+    low_stock: { bg: 'bg-amber-100', text: 'text-amber-700', label: 'Few Left' },
+    out_of_stock: { bg: 'bg-red-100', text: 'text-red-700', label: 'Out of Stock' },
+    coming_soon: { bg: 'bg-blue-100', text: 'text-blue-700', label: 'Coming Soon' },
+  };
+
+  const stockStatus = product.stockStatus || 'in_stock';
+  const isOutOfStock = stockStatus === 'out_of_stock';
+  const isComingSoon = stockStatus === 'coming_soon';
+
   return (
-    <div className="
+    <div className={`
       group
       bg-white rounded-2xl
       border border-stone-200
@@ -424,7 +438,8 @@ function ProductCard({
       hover:shadow-xl hover:shadow-teal-500/10
       hover:border-teal-200
       transition-all duration-300
-    ">
+      ${isOutOfStock || isComingSoon ? 'opacity-75' : ''}
+    `}>
       {/* Product Image */}
       <div className="relative aspect-square bg-stone-100 overflow-hidden">
         <div className="
@@ -448,27 +463,54 @@ function ProductCard({
           </span>
         </div>
 
+        {/* Stock Status Badge */}
+        {stockStatus !== 'in_stock' && (
+          <div className="absolute top-3 right-3">
+            <span className={`
+              px-3 py-1.5
+              backdrop-blur-sm
+              rounded-full
+              text-xs font-medium
+              ${stockConfig[stockStatus].bg}
+              ${stockConfig[stockStatus].text}
+            `}>
+              {stockConfig[stockStatus].label}
+            </span>
+          </div>
+        )}
+
+        {/* Out of Stock Overlay */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+            <span className="px-4 py-2 bg-red-500 text-white font-semibold rounded-lg text-sm">
+              Out of Stock
+            </span>
+          </div>
+        )}
+
         {/* Quick Action */}
-        <a
-          href={`https://wa.me/94722902299?text=${whatsappMessage}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="
-            absolute bottom-3 right-3
-            w-10 h-10
-            bg-green-500 hover:bg-green-600
-            rounded-full
-            flex items-center justify-center
-            text-white
-            opacity-0 group-hover:opacity-100
-            transform translate-y-2 group-hover:translate-y-0
-            transition-all duration-300
-            shadow-lg
-          "
-          aria-label="Inquire on WhatsApp"
-        >
-          <Icon name="whatsapp" size={20} />
-        </a>
+        {!isOutOfStock && !isComingSoon && (
+          <a
+            href={`https://wa.me/94722902299?text=${whatsappMessage}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="
+              absolute bottom-3 right-3
+              w-10 h-10
+              bg-green-500 hover:bg-green-600
+              rounded-full
+              flex items-center justify-center
+              text-white
+              opacity-0 group-hover:opacity-100
+              transform translate-y-2 group-hover:translate-y-0
+              transition-all duration-300
+              shadow-lg
+            "
+            aria-label="Inquire on WhatsApp"
+          >
+            <Icon name="whatsapp" size={20} />
+          </a>
+        )}
       </div>
 
       {/* Product Info */}
@@ -483,20 +525,30 @@ function ProductCard({
           <span className="font-display font-bold text-lg text-teal-600">
             {formatPrice(product.price)}
           </span>
-          <a
-            href={`https://wa.me/94722902299?text=${whatsappMessage}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="
-              flex items-center gap-1.5
-              text-sm font-medium text-stone-500
-              hover:text-green-600
-              transition-colors
-            "
-          >
-            <span>Inquire</span>
-            <Icon name="arrow-right" size={14} />
-          </a>
+          {isOutOfStock ? (
+            <span className="text-sm font-medium text-red-500">
+              Notify Me
+            </span>
+          ) : isComingSoon ? (
+            <span className="text-sm font-medium text-blue-500">
+              Coming Soon
+            </span>
+          ) : (
+            <a
+              href={`https://wa.me/94722902299?text=${whatsappMessage}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="
+                flex items-center gap-1.5
+                text-sm font-medium text-stone-500
+                hover:text-green-600
+                transition-colors
+              "
+            >
+              <span>Inquire</span>
+              <Icon name="arrow-right" size={14} />
+            </a>
+          )}
         </div>
       </div>
     </div>

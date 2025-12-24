@@ -10,8 +10,8 @@ import React from 'react';
 interface FormInputProps {
   label: string;
   name: string;
-  type?: 'text' | 'number' | 'email' | 'password' | 'textarea' | 'select';
-  value: string | number;
+  type?: 'text' | 'number' | 'email' | 'password' | 'textarea' | 'select' | 'date';
+  value: string | number | undefined | null;
   onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => void;
   placeholder?: string;
   required?: boolean;
@@ -60,7 +60,7 @@ const FormInput: React.FC<FormInputProps> = ({
         <textarea
           id={name}
           name={name}
-          value={value}
+          value={value ?? ''}
           onChange={onChange}
           placeholder={placeholder}
           required={required}
@@ -71,7 +71,7 @@ const FormInput: React.FC<FormInputProps> = ({
         <select
           id={name}
           name={name}
-          value={value}
+          value={value ?? ''}
           onChange={onChange}
           required={required}
           className={baseInputClasses}
@@ -88,7 +88,7 @@ const FormInput: React.FC<FormInputProps> = ({
           id={name}
           name={name}
           type={type}
-          value={value}
+          value={value ?? ''}
           onChange={onChange}
           placeholder={placeholder}
           required={required}

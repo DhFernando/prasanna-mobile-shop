@@ -1,0 +1,64 @@
+{
+  "sales": [
+    {
+      "id": "sale_001",
+      "itemName": "iPhone 15 Pro Max Case",
+      "quantity": 2,
+      "unitPrice": 2500,
+      "totalPrice": 5000,
+      "customerName": "Kasun Perera",
+      "customerPhone": "077 123 4567",
+      "notes": "",
+      "saleDate": "2024-12-20T14:30:00Z",
+      "createdAt": "2024-12-20T14:30:00Z"
+    },
+    {
+      "id": "sale_002",
+      "itemName": "Fast Charging Cable USB-C",
+      "quantity": 3,
+      "unitPrice": 850,
+      "totalPrice": 2550,
+      "customerName": "",
+      "customerPhone": "",
+      "notes": "Walk-in customer",
+      "saleDate": "2024-12-21T10:15:00Z",
+      "createdAt": "2024-12-21T10:15:00Z"
+    },
+    {
+      "id": "sale_003",
+      "itemName": "Samsung Galaxy S24 Ultra Cover",
+      "quantity": 1,
+      "unitPrice": 2200,
+      "totalPrice": 2200,
+      "customerName": "Nimal Silva",
+      "customerPhone": "076 987 6543",
+      "notes": "",
+      "saleDate": "2024-12-22T16:45:00Z",
+      "createdAt": "2024-12-22T16:45:00Z"
+    },
+    {
+      "id": "sale_004",
+      "itemName": "20W USB-C Power Adapter",
+      "quantity": 1,
+      "unitPrice": 1800,
+      "totalPrice": 1800,
+      "customerName": "",
+      "customerPhone": "",
+      "notes": "",
+      "saleDate": "2024-12-23T11:20:00Z",
+      "createdAt": "2024-12-23T11:20:00Z"
+    },
+    {
+      "id": "sale_005",
+      "itemName": "Tempered Glass Screen Protector",
+      "quantity": 5,
+      "unitPrice": 750,
+      "totalPrice": 3750,
+      "customerName": "Chamara Fernando",
+      "customerPhone": "071 555 1234",
+      "notes": "Bulk purchase for shop",
+      "saleDate": "2024-12-24T09:00:00Z",
+      "createdAt": "2024-12-24T09:00:00Z"
+    }
+  ]
+}
