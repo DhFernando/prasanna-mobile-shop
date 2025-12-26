@@ -11,6 +11,7 @@ import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Icon, Button } from '@/components/atoms';
 import { useTheme } from '@/lib/theme';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 interface Product {
   id: string;
@@ -190,6 +191,7 @@ function Breadcrumbs({
 // Separate component that uses useSearchParams
 function ShopContent() {
   const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
   const searchParams = useSearchParams();
   const router = useRouter();
   const initialCategory = searchParams.get('category') || 'all';
@@ -354,10 +356,10 @@ function ShopContent() {
               </div>
               <div className="hidden sm:block">
                 <h1 className={`font-display font-bold text-lg leading-tight ${isDark ? 'text-white' : 'text-stone-900'}`}>
-                  Prasanna
+                  {settings?.siteName?.split(' ')[0] || 'Mobile'}
                 </h1>
                 <p className={`text-xs font-medium -mt-0.5 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                  Mobile Center
+                  {settings?.siteName?.split(' ').slice(1).join(' ') || 'Center'}
                 </p>
               </div>
             </Link>
@@ -634,15 +636,15 @@ function ShopContent() {
               >
                 <Icon name="smartphone" size={16} className="text-white" />
               </div>
-              <span className={`font-display font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>Prasanna Mobile Center</span>
+              <span className={`font-display font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>{settings?.siteName || 'Mobile Center'}</span>
             </Link>
             <div className={`flex items-center gap-6 text-sm ${isDark ? 'text-stone-400' : 'text-stone-600'}`}>
-              <a href="tel:0722902299" className="hover:opacity-80 transition-colors flex items-center gap-2" style={{ color: 'inherit' }}>
+              <a href={`tel:${settings?.contact?.phone?.replace(/\s/g, '') || '0722902299'}`} className="hover:opacity-80 transition-colors flex items-center gap-2" style={{ color: 'inherit' }}>
                 <Icon name="phone" size={16} />
-                072 290 2299
+                {settings?.contact?.phone || '072 290 2299'}
               </a>
               <a 
-                href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7" 
+                href={settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7'} 
                 target="_blank"
                 rel="noopener noreferrer"
                 className="hover:opacity-80 transition-colors flex items-center gap-2"

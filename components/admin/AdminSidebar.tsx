@@ -12,6 +12,7 @@ import { usePathname } from 'next/navigation';
 import { Icon } from '@/components/atoms';
 import { useAuth } from '@/contexts/AuthContext';
 import { useTheme } from '@/lib/theme';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 interface NavItem {
   label: string;
@@ -36,6 +37,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const { logout } = useAuth();
   const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
 
   return (
     <>
@@ -92,7 +94,7 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
                   Admin Panel
                 </h1>
                 <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
-                  Prasanna Mobile
+                  {settings?.siteName || 'Mobile Center'}
                 </p>
               </div>
             </Link>

@@ -8,8 +8,10 @@
 
 import React, { useState, useEffect } from 'react';
 import { Icon } from '../atoms';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 const MobileCTA: React.FC = () => {
+  const { settings } = useSiteSettings();
   const [isVisible, setIsVisible] = useState(false);
 
   // Show CTA after scrolling past hero
@@ -20,6 +22,11 @@ const MobileCTA: React.FC = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Get phone and WhatsApp URLs from settings
+  const phoneNumber = settings?.contact?.phone?.replace(/\s/g, '') || '0722902299';
+  const whatsappNumber = settings?.contact?.whatsapp?.replace(/\+/g, '') || '94722902299';
+  const mapsUrl = settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7';
 
   return (
     <>
@@ -41,7 +48,7 @@ const MobileCTA: React.FC = () => {
           <div className="flex gap-3">
             {/* Call Button */}
             <a
-              href="tel:0722902299"
+              href={`tel:${phoneNumber}`}
               className="
                 flex-1
                 flex items-center justify-center gap-2.5
@@ -53,7 +60,7 @@ const MobileCTA: React.FC = () => {
                 active:scale-[0.98]
                 transition-transform
               "
-              aria-label="Call Prasanna Mobile Center"
+              aria-label={`Call ${settings?.siteName || 'us'}`}
             >
               <Icon name="phone" size={20} />
               <span>Call Now</span>
@@ -61,7 +68,7 @@ const MobileCTA: React.FC = () => {
 
             {/* WhatsApp Button */}
             <a
-              href="https://wa.me/94722902299"
+              href={`https://wa.me/${whatsappNumber}`}
               target="_blank"
               rel="noopener noreferrer"
               className="
@@ -86,7 +93,7 @@ const MobileCTA: React.FC = () => {
 
       {/* Floating WhatsApp Button - Desktop & Tablet */}
       <a
-        href="https://wa.me/94722902299"
+        href={`https://wa.me/${whatsappNumber}`}
         target="_blank"
         rel="noopener noreferrer"
         className={`
@@ -135,7 +142,7 @@ const MobileCTA: React.FC = () => {
 
       {/* Floating Call Button - Desktop & Tablet */}
       <a
-        href="tel:0722902299"
+        href={`tel:${phoneNumber}`}
         className={`
           hidden sm:flex
           fixed bottom-[6.5rem] right-6
@@ -169,13 +176,13 @@ const MobileCTA: React.FC = () => {
           transition-all duration-300
           pointer-events-none
         ">
-          Call 072 290 2299
+          Call {settings?.contact?.phone || '072 290 2299'}
         </span>
       </a>
 
       {/* Floating Directions Button - Desktop & Tablet */}
       <a
-        href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
+        href={mapsUrl}
         target="_blank"
         rel="noopener noreferrer"
         className={`

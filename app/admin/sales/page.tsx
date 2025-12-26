@@ -11,6 +11,7 @@ import { Modal, ConfirmDialog, FormInput } from '@/components/admin';
 import { Icon } from '@/components/atoms';
 import { Sale, SaleFormData } from '@/lib/types';
 import { useTheme } from '@/lib/theme';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -26,6 +27,7 @@ const initialFormData: SaleFormData = {
 
 export default function SalesPage() {
   const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -200,7 +202,7 @@ export default function SalesPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Invoice - Prasanna Mobile Center</title>
+          <title>Invoice - ${settings?.siteName || 'Mobile Center'}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
@@ -679,9 +681,9 @@ export default function SalesPage() {
             {/* Printable Invoice Content */}
             <div ref={printRef} className="bg-white">
               <div className="header">
-                <h1>Prasanna Mobile Center</h1>
-                <p>No 16, Old Negombo Rd, Ja-Ela, Sri Lanka</p>
-                <p>Phone: 072 290 2299</p>
+                <h1>{settings?.siteName || 'Mobile Center'}</h1>
+                <p>{settings?.address?.line1 || ''}{settings?.address?.line2 ? `, ${settings.address.line2}` : ''}</p>
+                <p>Phone: {settings?.contact?.phone || ''}</p>
               </div>
 
               <div className="details">
@@ -736,9 +738,9 @@ export default function SalesPage() {
             {/* Preview (styled version) */}
             <div className={`mt-6 p-4 rounded-lg border ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
               <div className={`text-center mb-4 pb-4 border-b-2 border-dashed ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
-                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-stone-900'}`}>Prasanna Mobile Center</h3>
-                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>No 16, Old Negombo Rd, Ja-Ela, Sri Lanka</p>
-                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Phone: 072 290 2299</p>
+                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-stone-900'}`}>{settings?.siteName || 'Mobile Center'}</h3>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{settings?.address?.line1 || ''}{settings?.address?.line2 ? `, ${settings.address.line2}` : ''}</p>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Phone: {settings?.contact?.phone || ''}</p>
               </div>
 
               <div className="space-y-2 text-sm mb-4">
