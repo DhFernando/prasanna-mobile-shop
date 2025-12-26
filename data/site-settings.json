@@ -2,6 +2,23 @@
   "siteName": "Prasanna Mobile Shop",
   "tagline": "Your Trusted Cake in Gampaha",
   "description": "Quality mobile accessories, chargers, covers, and expert repairs. Visit us today for genuine products at affordable prices. ",
+  "heroImages": [
+    {
+      "id": "hero-1",
+      "url": "https://images.unsplash.com/photo-1556656793-08538906a9f8?q=80&w=2070&auto=format&fit=crop",
+      "alt": "Modern smartphone with accessories"
+    },
+    {
+      "id": "hero-2",
+      "url": "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=2070&auto=format&fit=crop",
+      "alt": "Mobile phone repair and accessories"
+    },
+    {
+      "id": "hero-3",
+      "url": "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?q=80&w=2067&auto=format&fit=crop",
+      "alt": "Premium mobile accessories collection"
+    }
+  ],
   "contact": {
     "phone": "072 290 2299",
     "phoneInternational": "+94722902295",

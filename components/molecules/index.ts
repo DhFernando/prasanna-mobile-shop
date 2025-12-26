@@ -10,4 +10,5 @@ export { default as FeatureCard } from './FeatureCard';
 export { default as RatingBadge } from './RatingBadge';
 export { default as GlobalSearch } from './GlobalSearch';
 export { default as ThemeSwitcher } from './ThemeSwitcher';
+export { default as HeroCarousel } from './HeroCarousel';
 

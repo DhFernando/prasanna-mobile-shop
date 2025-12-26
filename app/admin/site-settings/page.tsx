@@ -10,7 +10,10 @@ import React, { useEffect, useState } from 'react';
 import { FormInput } from '@/components/admin';
 import { Icon } from '@/components/atoms';
 import { useTheme } from '@/lib/theme';
-import { SiteSettings } from '@/lib/types';
+import { SiteSettings, HeroImage } from '@/lib/types';
+
+// Generate unique ID for hero images
+const generateHeroImageId = () => `hero-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
 // Function to generate Google Maps embed URL from a share link
 function generateMapsEmbedFromLink(mapsUrl: string): string {
@@ -115,6 +118,36 @@ export default function SiteSettingsPage() {
     reviewsCount: '',
   });
 
+  // Hero images state (separate for easier management)
+  const [heroImages, setHeroImages] = useState<HeroImage[]>([]);
+  const MAX_HERO_IMAGES = 5;
+
+  // Hero image handlers
+  const addHeroImage = () => {
+    if (heroImages.length >= MAX_HERO_IMAGES) return;
+    setHeroImages(prev => [...prev, { id: generateHeroImageId(), url: '', alt: '' }]);
+  };
+
+  const updateHeroImage = (id: string, field: 'url' | 'alt', value: string) => {
+    setHeroImages(prev => prev.map(img => img.id === id ? { ...img, [field]: value } : img));
+  };
+
+  const removeHeroImage = (id: string) => {
+    setHeroImages(prev => prev.filter(img => img.id !== id));
+  };
+
+  const moveHeroImage = (id: string, direction: 'up' | 'down') => {
+    const index = heroImages.findIndex(img => img.id === id);
+    if (index === -1) return;
+    if (direction === 'up' && index === 0) return;
+    if (direction === 'down' && index === heroImages.length - 1) return;
+    
+    const newImages = [...heroImages];
+    const swapIndex = direction === 'up' ? index - 1 : index + 1;
+    [newImages[index], newImages[swapIndex]] = [newImages[swapIndex], newImages[index]];
+    setHeroImages(newImages);
+  };
+
   // Fetch settings
   useEffect(() => {
     async function fetchSettings() {
@@ -153,6 +186,9 @@ export default function SiteSettingsPage() {
             googleRating: s.googleRating?.rating || '',
             reviewsCount: s.googleRating?.reviewsCount || '',
           });
+          
+          // Load hero images
+          setHeroImages(s.heroImages || []);
         }
       } catch (error) {
         console.error('Error fetching settings:', error);
@@ -174,9 +210,13 @@ export default function SiteSettingsPage() {
     setIsSaving(true);
     setSaveMessage(null);
     
+    // Filter out hero images with empty URLs
+    const validHeroImages = heroImages.filter(img => img.url.trim() !== '');
+    
     // Combine country codes with local numbers
     const dataToSave = {
       ...formData,
+      heroImages: validHeroImages,
       phoneInternational: `${formData.phoneCountryCode}${formData.phoneLocal.replace(/^0+/, '')}`,
       whatsapp: `${formData.whatsappCountryCode}${formData.whatsappLocal.replace(/^0+/, '')}`,
     };
@@ -288,6 +328,161 @@ export default function SiteSettingsPage() {
               rows={3}
             />
           </div>
+        </div>
+
+        {/* Hero Images */}
+        <div className={`rounded-2xl border p-6 ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'}`}>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className={`font-semibold text-lg flex items-center gap-2 ${isDark ? 'text-white' : 'text-stone-900'}`}>
+              <Icon name="star" size={20} style={{ color: currentTheme.primaryHex }} />
+              Hero Background Images
+            </h2>
+            {heroImages.length < MAX_HERO_IMAGES && (
+              <button
+                type="button"
+                onClick={addHeroImage}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors"
+                style={{ 
+                  backgroundColor: `${currentTheme.primaryHex}15`,
+                  color: currentTheme.primaryHex 
+                }}
+              >
+                <Icon name="plus" size={16} />
+                Add Image
+              </button>
+            )}
+          </div>
+          
+          <p className={`text-sm mb-4 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
+            Add up to {MAX_HERO_IMAGES} background images for the hero carousel. Images will auto-rotate.
+          </p>
+
+          {heroImages.length === 0 ? (
+            <div className={`text-center py-8 rounded-xl border-2 border-dashed ${isDark ? 'border-stone-700 text-stone-500' : 'border-stone-300 text-stone-400'}`}>
+              <Icon name="star" size={32} className="mx-auto mb-2 opacity-50" />
+              <p>No hero images added yet</p>
+              <button
+                type="button"
+                onClick={addHeroImage}
+                className="mt-3 text-sm font-medium underline"
+                style={{ color: currentTheme.primaryHex }}
+              >
+                Add your first image
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {heroImages.map((image, index) => (
+                <div 
+                  key={image.id}
+                  className={`p-4 rounded-xl border ${isDark ? 'bg-stone-900 border-stone-700' : 'bg-stone-50 border-stone-200'}`}
+                >
+                  <div className="flex items-start gap-4">
+                    {/* Image Preview */}
+                    <div className="flex-shrink-0">
+                      {image.url ? (
+                        <div className="relative w-24 h-16 rounded-lg overflow-hidden bg-stone-200">
+                          <img 
+                            src={image.url} 
+                            alt={image.alt || `Hero ${index + 1}`}
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="96" height="64" viewBox="0 0 96 64"><rect fill="%23374151" width="96" height="64"/><text x="48" y="36" text-anchor="middle" fill="%239CA3AF" font-size="10">Error</text></svg>';
+                            }}
+                          />
+                          <div className="absolute top-1 left-1 bg-black/60 text-white text-xs px-1.5 py-0.5 rounded font-medium">
+                            {index + 1}
+                          </div>
+                        </div>
+                      ) : (
+                        <div className={`w-24 h-16 rounded-lg flex items-center justify-center ${isDark ? 'bg-stone-800' : 'bg-stone-200'}`}>
+                          <Icon name="star" size={20} className={isDark ? 'text-stone-600' : 'text-stone-400'} />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Inputs */}
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="url"
+                        placeholder="Image URL (https://...)"
+                        value={image.url}
+                        onChange={(e) => updateHeroImage(image.id, 'url', e.target.value)}
+                        className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 transition-colors ${
+                          isDark 
+                            ? 'bg-stone-800 border-stone-600 text-white placeholder:text-stone-500 focus:ring-stone-500' 
+                            : 'bg-white border-stone-300 text-stone-900 placeholder:text-stone-400 focus:ring-teal-500'
+                        }`}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Alt text (optional)"
+                        value={image.alt || ''}
+                        onChange={(e) => updateHeroImage(image.id, 'alt', e.target.value)}
+                        className={`w-full px-3 py-2 rounded-lg border text-sm focus:outline-none focus:ring-2 transition-colors ${
+                          isDark 
+                            ? 'bg-stone-800 border-stone-600 text-white placeholder:text-stone-500 focus:ring-stone-500' 
+                            : 'bg-white border-stone-300 text-stone-900 placeholder:text-stone-400 focus:ring-teal-500'
+                        }`}
+                      />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex flex-col gap-1">
+                      <button
+                        type="button"
+                        onClick={() => moveHeroImage(image.id, 'up')}
+                        disabled={index === 0}
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          index === 0 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : isDark ? 'hover:bg-stone-700' : 'hover:bg-stone-200'
+                        }`}
+                        title="Move up"
+                      >
+                        <Icon name="chevron-up" size={16} className={isDark ? 'text-stone-400' : 'text-stone-500'} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => moveHeroImage(image.id, 'down')}
+                        disabled={index === heroImages.length - 1}
+                        className={`p-1.5 rounded-lg transition-colors ${
+                          index === heroImages.length - 1 
+                            ? 'opacity-30 cursor-not-allowed' 
+                            : isDark ? 'hover:bg-stone-700' : 'hover:bg-stone-200'
+                        }`}
+                        title="Move down"
+                      >
+                        <Icon name="chevron-down" size={16} className={isDark ? 'text-stone-400' : 'text-stone-500'} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeHeroImage(image.id)}
+                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 transition-colors"
+                        title="Remove"
+                      >
+                        <Icon name="trash" size={16} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          {heroImages.length > 0 && heroImages.length < MAX_HERO_IMAGES && (
+            <button
+              type="button"
+              onClick={addHeroImage}
+              className={`mt-4 w-full py-2.5 rounded-xl border-2 border-dashed font-medium transition-colors ${
+                isDark 
+                  ? 'border-stone-700 text-stone-400 hover:border-stone-600 hover:text-stone-300' 
+                  : 'border-stone-300 text-stone-500 hover:border-stone-400 hover:text-stone-600'
+              }`}
+            >
+              + Add Another Image ({heroImages.length}/{MAX_HERO_IMAGES})
+            </button>
+          )}
         </div>
 
         {/* Contact Info */}
