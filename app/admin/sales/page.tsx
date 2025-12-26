@@ -1,6 +1,7 @@
 /**
  * Sales Management Page
  * Track and manage all sales with filters and printable invoices
+ * Supports dark/light mode
  */
 
 'use client';
@@ -9,6 +10,7 @@ import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Modal, ConfirmDialog, FormInput } from '@/components/admin';
 import { Icon } from '@/components/atoms';
 import { Sale, SaleFormData } from '@/lib/types';
+import { useTheme } from '@/lib/theme';
 
 const ITEMS_PER_PAGE = 15;
 
@@ -23,6 +25,7 @@ const initialFormData: SaleFormData = {
 };
 
 export default function SalesPage() {
+  const { isDark, currentTheme } = useTheme();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -253,24 +256,20 @@ export default function SalesPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 mb-1">
+          <h1 className={`font-display text-2xl sm:text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-stone-900'}`}>
             Sales
           </h1>
-          <p className="text-stone-500">
+          <p className={isDark ? 'text-stone-400' : 'text-stone-500'}>
             Track and manage your sales records
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="
-            inline-flex items-center gap-2
-            px-5 py-2.5
-            bg-gradient-to-r from-teal-600 to-teal-500
-            text-white font-semibold rounded-xl
-            shadow-lg shadow-teal-500/25
-            hover:from-teal-500 hover:to-teal-400
-            transition-all
-          "
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-xl shadow-lg transition-all hover:opacity-90"
+          style={{ 
+            background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+            boxShadow: `0 4px 14px ${currentTheme.primaryHex}40`
+          }}
         >
           <Icon name="zap" size={18} />
           Record Sale
@@ -279,53 +278,61 @@ export default function SalesPage() {
 
       {/* Summary Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className={`rounded-xl border p-4 ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-teal-100 flex items-center justify-center">
-              <Icon name="tag" size={20} className="text-teal-600" />
+            <div 
+              className="w-10 h-10 rounded-lg flex items-center justify-center"
+              style={{ backgroundColor: `${currentTheme.primaryHex}20` }}
+            >
+              <Icon name="tag" size={20} style={{ color: currentTheme.primaryHex }} />
             </div>
             <div>
-              <p className="text-sm text-stone-500">Total Sales</p>
-              <p className="text-xl font-bold text-stone-900">{summary.totalSales}</p>
+              <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Total Sales</p>
+              <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>{summary.totalSales}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className={`rounded-xl border p-4 ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-emerald-100 flex items-center justify-center">
-              <Icon name="zap" size={20} className="text-emerald-600" />
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-100'}`}>
+              <Icon name="zap" size={20} className={isDark ? 'text-emerald-400' : 'text-emerald-600'} />
             </div>
             <div>
-              <p className="text-sm text-stone-500">Total Revenue</p>
-              <p className="text-xl font-bold text-stone-900">Rs. {summary.totalRevenue.toLocaleString()}</p>
+              <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Total Revenue</p>
+              <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>Rs. {summary.totalRevenue.toLocaleString()}</p>
             </div>
           </div>
         </div>
-        <div className="bg-white rounded-xl border border-stone-200 p-4">
+        <div className={`rounded-xl border p-4 ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'}`}>
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-purple-100 flex items-center justify-center">
-              <Icon name="smartphone" size={20} className="text-purple-600" />
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${isDark ? 'bg-purple-500/20' : 'bg-purple-100'}`}>
+              <Icon name="smartphone" size={20} className={isDark ? 'text-purple-400' : 'text-purple-600'} />
             </div>
             <div>
-              <p className="text-sm text-stone-500">Items Sold</p>
-              <p className="text-xl font-bold text-stone-900">{summary.totalItems}</p>
+              <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Items Sold</p>
+              <p className={`text-xl font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>{summary.totalItems}</p>
             </div>
           </div>
         </div>
       </div>
 
       {/* Filters */}
-      <div className="bg-white rounded-xl border border-stone-200 p-4 mb-6">
+      <div className={`rounded-xl border p-4 mb-6 ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'}`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Search */}
           <div className="relative">
-            <Icon name="search" size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
+            <Icon name="search" size={18} className={`absolute left-3 top-1/2 -translate-y-1/2 ${isDark ? 'text-stone-500' : 'text-stone-400'}`} />
             <input
               type="text"
               placeholder="Search by item or customer..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+              className={`w-full pl-10 pr-4 py-2.5 rounded-lg border focus:ring-2 focus:outline-none transition-colors ${
+                isDark 
+                  ? 'bg-stone-700 border-stone-600 text-white placeholder-stone-400 focus:border-stone-500' 
+                  : 'bg-stone-50 border-stone-200 text-stone-900 focus:border-teal-500'
+              }`}
+              style={{ '--tw-ring-color': `${currentTheme.primaryHex}30` } as React.CSSProperties}
             />
           </div>
 
@@ -335,8 +342,12 @@ export default function SalesPage() {
               type="date"
               value={startDate}
               onChange={(e) => setStartDate(e.target.value)}
-              className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
-              placeholder="Start Date"
+              className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:outline-none transition-colors ${
+                isDark 
+                  ? 'bg-stone-700 border-stone-600 text-white focus:border-stone-500' 
+                  : 'bg-stone-50 border-stone-200 text-stone-900 focus:border-teal-500'
+              }`}
+              style={{ '--tw-ring-color': `${currentTheme.primaryHex}30` } as React.CSSProperties}
             />
           </div>
 
@@ -346,8 +357,12 @@ export default function SalesPage() {
               type="date"
               value={endDate}
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full px-4 py-2.5 bg-stone-50 border border-stone-200 rounded-lg focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
-              placeholder="End Date"
+              className={`w-full px-4 py-2.5 rounded-lg border focus:ring-2 focus:outline-none transition-colors ${
+                isDark 
+                  ? 'bg-stone-700 border-stone-600 text-white focus:border-stone-500' 
+                  : 'bg-stone-50 border-stone-200 text-stone-900 focus:border-teal-500'
+              }`}
+              style={{ '--tw-ring-color': `${currentTheme.primaryHex}30` } as React.CSSProperties}
             />
           </div>
 
@@ -359,7 +374,11 @@ export default function SalesPage() {
                 setStartDate('');
                 setEndDate('');
               }}
-              className="px-4 py-2.5 text-stone-600 hover:text-stone-800 border border-stone-200 rounded-lg hover:bg-stone-50 transition-colors"
+              className={`px-4 py-2.5 rounded-lg border transition-colors ${
+                isDark 
+                  ? 'text-stone-300 hover:text-white border-stone-600 hover:bg-stone-700' 
+                  : 'text-stone-600 hover:text-stone-800 border-stone-200 hover:bg-stone-50'
+              }`}
             >
               Clear Filters
             </button>
@@ -368,19 +387,22 @@ export default function SalesPage() {
       </div>
 
       {/* Sales Table */}
-      <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+      <div className={`rounded-xl border overflow-hidden ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'}`}>
         {isLoading ? (
           <div className="p-12 text-center">
-            <div className="w-8 h-8 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-stone-500">Loading sales...</p>
+            <div 
+              className="w-8 h-8 border-3 rounded-full animate-spin mx-auto mb-3"
+              style={{ borderColor: `${currentTheme.primaryHex}30`, borderTopColor: currentTheme.primaryHex }}
+            />
+            <p className={isDark ? 'text-stone-400' : 'text-stone-500'}>Loading sales...</p>
           </div>
         ) : sales.length === 0 ? (
           <div className="p-12 text-center">
-            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
-              <Icon name="tag" size={28} className="text-stone-400" />
+            <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${isDark ? 'bg-stone-700' : 'bg-stone-100'}`}>
+              <Icon name="tag" size={28} className={isDark ? 'text-stone-500' : 'text-stone-400'} />
             </div>
-            <p className="text-stone-600 font-medium mb-1">No sales found</p>
-            <p className="text-sm text-stone-500">
+            <p className={`font-medium mb-1 ${isDark ? 'text-stone-300' : 'text-stone-600'}`}>No sales found</p>
+            <p className={`text-sm ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>
               {searchQuery || startDate || endDate 
                 ? 'Try adjusting your filters' 
                 : 'Record your first sale!'}
@@ -390,65 +412,73 @@ export default function SalesPage() {
           <>
             <div className="overflow-x-auto">
               <table className="w-full">
-                <thead className="bg-stone-50 border-b border-stone-200">
+                <thead className={`border-b ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
                   <tr>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Date</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Item</th>
-                    <th className="text-left py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Customer</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Qty</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Unit Price</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Total</th>
-                    <th className="text-right py-3 px-4 text-xs font-semibold text-stone-500 uppercase tracking-wider">Actions</th>
+                    <th className={`text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Date</th>
+                    <th className={`text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Item</th>
+                    <th className={`text-left py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Customer</th>
+                    <th className={`text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Qty</th>
+                    <th className={`text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Unit Price</th>
+                    <th className={`text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Total</th>
+                    <th className={`text-right py-3 px-4 text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-stone-100">
+                <tbody className={`divide-y ${isDark ? 'divide-stone-700' : 'divide-stone-100'}`}>
                   {sales.map((sale) => (
-                    <tr key={sale.id} className="hover:bg-stone-50 transition-colors">
+                    <tr key={sale.id} className={`transition-colors ${isDark ? 'hover:bg-stone-700/50' : 'hover:bg-stone-50'}`}>
                       <td className="py-3 px-4">
                         <div>
-                          <p className="font-medium text-stone-900">{formatDate(sale.saleDate)}</p>
-                          <p className="text-xs text-stone-500">{formatTime(sale.saleDate)}</p>
+                          <p className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>{formatDate(sale.saleDate)}</p>
+                          <p className={`text-xs ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>{formatTime(sale.saleDate)}</p>
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <p className="font-medium text-stone-900">{sale.itemName}</p>
+                        <p className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>{sale.itemName}</p>
                         {sale.notes && (
-                          <p className="text-xs text-stone-500 line-clamp-1">{sale.notes}</p>
+                          <p className={`text-xs line-clamp-1 ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>{sale.notes}</p>
                         )}
                       </td>
                       <td className="py-3 px-4">
                         {sale.customerName ? (
                           <div>
-                            <p className="text-stone-700">{sale.customerName}</p>
+                            <p className={isDark ? 'text-stone-300' : 'text-stone-700'}>{sale.customerName}</p>
                             {sale.customerPhone && (
-                              <p className="text-xs text-stone-500">{sale.customerPhone}</p>
+                              <p className={`text-xs ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>{sale.customerPhone}</p>
                             )}
                           </div>
                         ) : (
-                          <span className="text-stone-400">Walk-in</span>
+                          <span className={isDark ? 'text-stone-500' : 'text-stone-400'}>Walk-in</span>
                         )}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className="font-medium text-stone-900">{sale.quantity}</span>
+                        <span className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>{sale.quantity}</span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className="text-stone-600">Rs. {sale.unitPrice.toLocaleString()}</span>
+                        <span className={isDark ? 'text-stone-400' : 'text-stone-600'}>Rs. {sale.unitPrice.toLocaleString()}</span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className="font-bold text-teal-600">Rs. {sale.totalPrice.toLocaleString()}</span>
+                        <span className="font-bold" style={{ color: currentTheme.primaryHex }}>Rs. {sale.totalPrice.toLocaleString()}</span>
                       </td>
                       <td className="py-3 px-4">
                         <div className="flex items-center justify-end gap-1">
                           <button
                             onClick={() => openBillModal(sale)}
-                            className="p-2 text-stone-400 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-colors"
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark 
+                                ? 'text-stone-500 hover:text-purple-400 hover:bg-purple-500/10' 
+                                : 'text-stone-400 hover:text-purple-600 hover:bg-purple-50'
+                            }`}
                             title="Print Bill"
                           >
                             <Icon name="tag" size={16} />
                           </button>
                           <button
                             onClick={() => openEditModal(sale)}
-                            className="p-2 text-stone-400 hover:text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark 
+                                ? 'text-stone-500 hover:text-blue-400 hover:bg-blue-500/10' 
+                                : 'text-stone-400 hover:text-teal-600 hover:bg-teal-50'
+                            }`}
                             title="Edit"
                           >
                             <Icon name="tools" size={16} />
@@ -458,7 +488,11 @@ export default function SalesPage() {
                               setDeletingSale(sale);
                               setIsDeleteDialogOpen(true);
                             }}
-                            className="p-2 text-stone-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                            className={`p-2 rounded-lg transition-colors ${
+                              isDark 
+                                ? 'text-stone-500 hover:text-red-400 hover:bg-red-500/10' 
+                                : 'text-stone-400 hover:text-red-600 hover:bg-red-50'
+                            }`}
                             title="Delete"
                           >
                             <Icon name="close" size={16} />
@@ -473,22 +507,30 @@ export default function SalesPage() {
 
             {/* Pagination */}
             {totalPages > 1 && (
-              <div className="flex items-center justify-between px-4 py-3 border-t border-stone-200">
-                <p className="text-sm text-stone-500">
+              <div className={`flex items-center justify-between px-4 py-3 border-t ${isDark ? 'border-stone-700' : 'border-stone-200'}`}>
+                <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
                   Page {currentPage} of {totalPages}
                 </p>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                     disabled={currentPage === 1}
-                    className="px-3 py-1.5 text-sm text-stone-600 bg-stone-100 hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                    className={`px-3 py-1.5 text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                      isDark 
+                        ? 'text-stone-300 bg-stone-700 hover:bg-stone-600' 
+                        : 'text-stone-600 bg-stone-100 hover:bg-stone-200'
+                    }`}
                   >
                     Previous
                   </button>
                   <button
                     onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                     disabled={currentPage === totalPages}
-                    className="px-3 py-1.5 text-sm text-stone-600 bg-stone-100 hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors"
+                    className={`px-3 py-1.5 text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors ${
+                      isDark 
+                        ? 'text-stone-300 bg-stone-700 hover:bg-stone-600' 
+                        : 'text-stone-600 bg-stone-100 hover:bg-stone-200'
+                    }`}
                   >
                     Next
                   </button>
@@ -539,10 +581,16 @@ export default function SalesPage() {
           </div>
 
           {/* Total Display */}
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 mb-4">
+          <div 
+            className="rounded-lg p-3 mb-4 border"
+            style={{ 
+              backgroundColor: `${currentTheme.primaryHex}10`,
+              borderColor: `${currentTheme.primaryHex}30`
+            }}
+          >
             <div className="flex items-center justify-between">
-              <span className="text-teal-700 font-medium">Total Amount:</span>
-              <span className="text-xl font-bold text-teal-700">Rs. {calculateTotal().toLocaleString()}</span>
+              <span className="font-medium" style={{ color: currentTheme.primaryHex }}>Total Amount:</span>
+              <span className="text-xl font-bold" style={{ color: currentTheme.primaryHex }}>Rs. {calculateTotal().toLocaleString()}</span>
             </div>
           </div>
 
@@ -583,18 +631,25 @@ export default function SalesPage() {
             rows={2}
           />
 
-          <div className="flex gap-3 mt-6 pt-4 border-t border-stone-200">
+          <div className={`flex gap-3 mt-6 pt-4 border-t ${isDark ? 'border-stone-700' : 'border-stone-200'}`}>
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="flex-1 py-3 px-4 rounded-xl font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+              className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors ${
+                isDark 
+                  ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' 
+                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              }`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="flex-1 py-3 px-4 rounded-xl font-semibold bg-gradient-to-r from-teal-600 to-teal-500 text-white hover:from-teal-500 hover:to-teal-400 disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              className="flex-1 py-3 px-4 rounded-xl font-semibold text-white disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              style={{ 
+                background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`
+              }}
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -679,38 +734,38 @@ export default function SalesPage() {
             </div>
 
             {/* Preview (styled version) */}
-            <div className="mt-6 p-4 bg-stone-50 rounded-lg border border-stone-200">
-              <div className="text-center mb-4 pb-4 border-b-2 border-dashed border-stone-300">
-                <h3 className="font-bold text-lg text-stone-900">Prasanna Mobile Center</h3>
-                <p className="text-xs text-stone-500">No 16, Old Negombo Rd, Ja-Ela, Sri Lanka</p>
-                <p className="text-xs text-stone-500">Phone: 072 290 2299</p>
+            <div className={`mt-6 p-4 rounded-lg border ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
+              <div className={`text-center mb-4 pb-4 border-b-2 border-dashed ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
+                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-stone-900'}`}>Prasanna Mobile Center</h3>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>No 16, Old Negombo Rd, Ja-Ela, Sri Lanka</p>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Phone: 072 290 2299</p>
               </div>
 
               <div className="space-y-2 text-sm mb-4">
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Invoice #:</span>
-                  <span className="font-mono text-stone-700">{billSale.id.toUpperCase()}</span>
+                  <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Invoice #:</span>
+                  <span className={`font-mono ${isDark ? 'text-stone-300' : 'text-stone-700'}`}>{billSale.id.toUpperCase()}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-stone-500">Date:</span>
-                  <span className="text-stone-700">{formatDate(billSale.saleDate)}</span>
+                  <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Date:</span>
+                  <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>{formatDate(billSale.saleDate)}</span>
                 </div>
                 {billSale.customerName && (
                   <div className="flex justify-between">
-                    <span className="text-stone-500">Customer:</span>
-                    <span className="text-stone-700">{billSale.customerName}</span>
+                    <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Customer:</span>
+                    <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>{billSale.customerName}</span>
                   </div>
                 )}
               </div>
 
-              <div className="py-4 border-t border-b border-dashed border-stone-300 mb-4">
-                <p className="font-semibold text-stone-900">{billSale.itemName}</p>
-                <p className="text-sm text-stone-500">{billSale.quantity} x Rs. {billSale.unitPrice.toLocaleString()}</p>
+              <div className={`py-4 border-t border-b border-dashed mb-4 ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
+                <p className={`font-semibold ${isDark ? 'text-white' : 'text-stone-900'}`}>{billSale.itemName}</p>
+                <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{billSale.quantity} x Rs. {billSale.unitPrice.toLocaleString()}</p>
               </div>
 
-              <div className="flex justify-between items-center text-lg font-bold text-stone-900">
+              <div className={`flex justify-between items-center text-lg font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>
                 <span>Total:</span>
-                <span className="text-teal-600">Rs. {billSale.totalPrice.toLocaleString()}</span>
+                <span style={{ color: currentTheme.primaryHex }}>Rs. {billSale.totalPrice.toLocaleString()}</span>
               </div>
             </div>
 
@@ -720,13 +775,20 @@ export default function SalesPage() {
                   setIsBillModalOpen(false);
                   setBillSale(null);
                 }}
-                className="flex-1 py-3 px-4 rounded-xl font-semibold bg-stone-100 text-stone-700 hover:bg-stone-200 transition-colors"
+                className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors ${
+                  isDark 
+                    ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' 
+                    : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+                }`}
               >
                 Close
               </button>
               <button
                 onClick={handlePrint}
-                className="flex-1 py-3 px-4 rounded-xl font-semibold bg-gradient-to-r from-purple-600 to-purple-500 text-white hover:from-purple-500 hover:to-purple-400 transition-all flex items-center justify-center gap-2"
+                className="flex-1 py-3 px-4 rounded-xl font-semibold text-white transition-all flex items-center justify-center gap-2"
+                style={{ 
+                  background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`
+                }}
               >
                 <Icon name="tag" size={18} />
                 Print Invoice
@@ -753,4 +815,5 @@ export default function SalesPage() {
     </div>
   );
 }
+
 

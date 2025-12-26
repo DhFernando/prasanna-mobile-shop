@@ -1,0 +1,9 @@
+{
+  "settings": {
+    "globalLowStockThreshold": 10,
+    "enableLowStockAlerts": true,
+    "enableOutOfStockAlerts": true
+  },
+  "productSettings": []
+}
+

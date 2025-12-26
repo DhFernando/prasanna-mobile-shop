@@ -1,0 +1,40 @@
+{
+  "alerts": [
+    {
+      "id": "alert_mjmfh8r7_hgjks",
+      "type": "low_stock",
+      "title": "Low Stock Alert",
+      "message": "\"Samsung Galaxy S24 Ultra Cover\" has only 8 items left (threshold: 10)",
+      "productId": "prod_002",
+      "threshold": 10,
+      "isRead": false,
+      "isDismissed": false,
+      "priority": "medium",
+      "createdAt": "2025-12-26T05:25:29.107Z"
+    },
+    {
+      "id": "alert_mjmfh8rc_4be8z",
+      "type": "low_stock",
+      "title": "Low Stock Alert",
+      "message": "\"20W USB-C Power Adapter\" has only 3 items left (threshold: 10)",
+      "productId": "prod_004",
+      "threshold": 10,
+      "isRead": false,
+      "isDismissed": false,
+      "priority": "high",
+      "createdAt": "2025-12-26T05:25:29.112Z"
+    },
+    {
+      "id": "alert_mjmfh8re_ua5zz",
+      "type": "out_of_stock",
+      "title": "Out of Stock",
+      "message": "\"Wireless Earbuds Pro\" is out of stock!",
+      "productId": "prod_006",
+      "threshold": 0,
+      "isRead": false,
+      "isDismissed": false,
+      "priority": "critical",
+      "createdAt": "2025-12-26T05:25:29.114Z"
+    }
+  ]
+}

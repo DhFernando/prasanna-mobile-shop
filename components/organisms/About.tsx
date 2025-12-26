@@ -2,12 +2,19 @@
  * About Organism
  * About section with store story and trust elements
  * Premium visual storytelling design
+ * Supports dark/light mode
  */
+
+'use client';
 
 import React from 'react';
 import { SectionHeading, BodyText, Subtitle, Icon } from '../atoms';
+import { useTheme } from '@/lib/theme';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 const About: React.FC = () => {
+  const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
   const trustPoints = [
     { icon: 'shield' as const, text: 'Genuine Products', color: 'teal' },
     { icon: 'heart' as const, text: 'Customer First', color: 'rose' },
@@ -23,13 +30,20 @@ const About: React.FC = () => {
   return (
     <section 
       id="about"
-      className="py-24 sm:py-32 bg-white relative overflow-hidden"
+      className={`py-24 sm:py-32 relative overflow-hidden ${isDark ? 'bg-stone-800' : 'bg-white'}`}
     >
       {/* Background Decorations */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute top-0 right-0 w-1/2 h-1/2 bg-gradient-to-bl from-teal-50/60 to-transparent" />
-        <div className="absolute bottom-0 left-0 w-1/3 h-1/2 bg-gradient-to-tr from-amber-50/40 to-transparent" />
-        <div className="absolute inset-0 section-pattern opacity-30" />
+        <div 
+          className="absolute top-0 right-0 w-1/2 h-1/2"
+          style={{ 
+            background: isDark 
+              ? `radial-gradient(circle at top right, ${currentTheme.primaryHex}10 0%, transparent 50%)`
+              : `radial-gradient(circle at top right, ${currentTheme.primaryHex}15 0%, transparent 50%)`
+          }}
+        />
+        <div className={`absolute bottom-0 left-0 w-1/3 h-1/2 ${isDark ? 'bg-amber-500/5' : 'bg-gradient-to-tr from-amber-50/40 to-transparent'}`} />
+        <div className={`absolute inset-0 section-pattern ${isDark ? 'opacity-10' : 'opacity-30'}`} />
       </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -37,26 +51,33 @@ const About: React.FC = () => {
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             {/* Content Side */}
             <div className="animate-fade-in-up">
-              <Subtitle className="mb-4">About Our Store</Subtitle>
-              <SectionHeading className="mb-6">
+              <Subtitle className={`mb-4 ${isDark ? 'text-stone-400' : ''}`}>About Our Store</Subtitle>
+              <h2 className={`font-display font-bold text-3xl sm:text-4xl mb-6 ${isDark ? 'text-white' : 'text-stone-900'}`}>
                 Serving Ja-Ela with{' '}
-                <span className="gradient-text">Quality</span> Mobile Accessories
-              </SectionHeading>
+                <span 
+                  className="bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryLight})`
+                  }}
+                >
+                  Quality
+                </span> Mobile Accessories
+              </h2>
               
               <div className="space-y-5 mb-10">
-                <BodyText size="lg" className="text-stone-700">
-                  Welcome to <strong className="text-teal-700">Prasanna Mobile Center</strong>, your trusted destination 
-                  for mobile accessories in Ja-Ela. Located on Old Negombo Road, we&apos;ve been 
+                <BodyText size="lg" className={isDark ? 'text-stone-300' : 'text-stone-700'}>
+                  Welcome to <strong style={{ color: currentTheme.primaryHex }}>{settings?.siteName || 'Prasanna Mobile Center'}</strong>, your trusted destination 
+                  for mobile accessories in Ja-Ela. Located on {settings?.address?.line1 || 'Old Negombo Road'}, we&apos;ve been 
                   serving our community with genuine products and exceptional service.
                 </BodyText>
                 
-                <BodyText className="text-stone-600">
+                <BodyText className={isDark ? 'text-stone-400' : 'text-stone-600'}>
                   We understand that your mobile devices are essential to your daily life. 
                   That&apos;s why we stock only quality accessories from trusted brands, ensuring 
                   you get products that last and perform as expected.
                 </BodyText>
                 
-                <BodyText className="text-stone-600">
+                <BodyText className={isDark ? 'text-stone-400' : 'text-stone-600'}>
                   Whether you need a durable charger, a stylish phone cover, a reliable 
                   screen protector, or any other mobile accessory, we have you covered. 
                   Our friendly staff is always ready to help you find exactly what you need.
@@ -66,15 +87,21 @@ const About: React.FC = () => {
               {/* Trust Points */}
               <div className="flex flex-wrap gap-3">
                 {trustPoints.map((point, index) => {
-                  const colorClasses = {
+                  const lightColorClasses = {
                     teal: 'bg-teal-50 border-teal-100 text-teal-700',
                     rose: 'bg-rose-50 border-rose-100 text-rose-700',
                     amber: 'bg-amber-50 border-amber-100 text-amber-700',
                   };
+                  const darkColorClasses = {
+                    teal: 'bg-teal-500/10 border-teal-500/30 text-teal-400',
+                    rose: 'bg-rose-500/10 border-rose-500/30 text-rose-400',
+                    amber: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+                  };
+                  const colorClasses = isDark ? darkColorClasses : lightColorClasses;
                   const iconClasses = {
-                    teal: 'text-teal-600',
-                    rose: 'text-rose-500',
-                    amber: 'text-amber-500',
+                    teal: isDark ? 'text-teal-400' : 'text-teal-600',
+                    rose: isDark ? 'text-rose-400' : 'text-rose-500',
+                    amber: isDark ? 'text-amber-400' : 'text-amber-500',
                   };
                   
                   return (
@@ -105,15 +132,20 @@ const About: React.FC = () => {
             {/* Visual Side */}
             <div className="animate-fade-in-up animation-delay-200 relative">
               {/* Main Card */}
-              <div className="
-                relative
-                bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-600
-                rounded-3xl
-                p-8 sm:p-10
-                text-white
-                shadow-2xl shadow-teal-600/30
-                overflow-hidden
-              ">
+              <div 
+                className="
+                  relative
+                  rounded-3xl
+                  p-8 sm:p-10
+                  text-white
+                  shadow-2xl
+                  overflow-hidden
+                "
+                style={{ 
+                  background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+                  boxShadow: `0 25px 50px -12px ${currentTheme.primaryHex}40`
+                }}
+              >
                 {/* Decorative Elements */}
                 <div className="absolute top-0 right-0 w-48 h-48 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/4" />
                 <div className="absolute bottom-0 left-0 w-36 h-36 bg-white/10 rounded-full translate-y-1/3 -translate-x-1/4" />
@@ -134,11 +166,11 @@ const About: React.FC = () => {
                   </div>
 
                   <h3 className="font-display text-2xl sm:text-3xl font-bold mb-4">
-                    Prasanna Mobile Center
+                    {settings?.siteName || 'Prasanna Mobile Center'}
                   </h3>
                   
-                  <p className="text-teal-100 text-lg mb-8 leading-relaxed">
-                    Your one-stop shop for all mobile accessories in Ja-Ela. Quality you can trust.
+                  <p className="text-white/80 text-lg mb-8 leading-relaxed">
+                    {settings?.tagline || 'Your one-stop shop for all mobile accessories in Ja-Ela. Quality you can trust.'}
                   </p>
 
                   {/* Stats Grid */}
@@ -146,7 +178,7 @@ const About: React.FC = () => {
                     {stats.map((stat, index) => (
                       <div key={index} className="text-center">
                         <div className="font-display font-bold text-2xl sm:text-3xl mb-1">{stat.value}</div>
-                        <div className="text-teal-200 text-xs sm:text-sm font-medium">{stat.label}</div>
+                        <div className="text-white/70 text-xs sm:text-sm font-medium">{stat.label}</div>
                       </div>
                     ))}
                   </div>
@@ -173,24 +205,29 @@ const About: React.FC = () => {
               </div>
 
               {/* Floating Badge - Location */}
-              <div className="
+              <div className={`
                 absolute -top-4 -left-4 sm:-top-6 sm:-left-6
-                bg-white
-                text-stone-800
                 rounded-2xl
                 px-5 py-4
-                shadow-xl shadow-stone-200/50
-                border border-stone-100
+                shadow-xl
+                border
                 animate-float-slow
                 hidden sm:block
-              ">
+                ${isDark 
+                  ? 'bg-stone-800 text-white border-stone-700 shadow-stone-900/50' 
+                  : 'bg-white text-stone-800 border-stone-100 shadow-stone-200/50'
+                }
+              `}>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center">
-                    <Icon name="location" size={20} className="text-teal-600" />
+                  <div 
+                    className="w-10 h-10 rounded-xl flex items-center justify-center"
+                    style={{ backgroundColor: `${currentTheme.primaryHex}15` }}
+                  >
+                    <Icon name="location" size={20} style={{ color: currentTheme.primaryHex }} />
                   </div>
                   <div>
-                    <div className="font-semibold text-sm">Ja-Ela</div>
-                    <div className="text-stone-500 text-xs">Old Negombo Rd</div>
+                    <div className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-stone-800'}`}>Ja-Ela</div>
+                    <div className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Old Negombo Rd</div>
                   </div>
                 </div>
               </div>

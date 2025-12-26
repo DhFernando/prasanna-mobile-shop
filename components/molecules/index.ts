@@ -9,4 +9,5 @@ export { default as ReviewCard } from './ReviewCard';
 export { default as FeatureCard } from './FeatureCard';
 export { default as RatingBadge } from './RatingBadge';
 export { default as GlobalSearch } from './GlobalSearch';
+export { default as ThemeSwitcher } from './ThemeSwitcher';
 

@@ -2,24 +2,56 @@
  * Contact Organism
  * Location, contact info, and Google Maps section
  * Premium design with enhanced visual hierarchy
+ * Supports dark/light mode
  */
 
-import React from 'react';
+'use client';
+
+import React, { useMemo } from 'react';
 import { SectionHeading, BodyText, Subtitle, Button, Icon } from '../atoms';
 import { ContactBlock } from '../molecules';
+import { useTheme } from '@/lib/theme';
+import { useSiteSettings, generateMapsEmbedUrl } from '@/lib/site-settings-context';
 
 const Contact: React.FC = () => {
+  const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
+  
+  // Generate embed URL from Google Maps link if not provided
+  const mapsEmbedUrl = useMemo(() => {
+    if (settings?.address?.googleMapsEmbed) {
+      return settings.address.googleMapsEmbed;
+    }
+    if (settings?.address?.googleMapsUrl) {
+      return generateMapsEmbedUrl(settings.address.googleMapsUrl);
+    }
+    return 'https://maps.google.com/maps?q=Prasanna+Mobile+Center+Ja-Ela&output=embed';
+  }, [settings?.address?.googleMapsEmbed, settings?.address?.googleMapsUrl]);
+  
   return (
     <section 
       id="contact"
-      className="py-24 sm:py-32 relative overflow-hidden"
+      className={`py-24 sm:py-32 relative overflow-hidden ${isDark ? 'bg-stone-900' : ''}`}
     >
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-stone-50 via-white to-teal-50/30" />
-        <div className="absolute inset-0 section-pattern opacity-30" />
-        <div className="absolute bottom-0 left-[10%] w-96 h-96 bg-teal-100/20 rounded-full blur-3xl" />
-        <div className="absolute top-20 right-[5%] w-80 h-80 bg-orange-100/20 rounded-full blur-3xl" />
+        <div className={`absolute inset-0 ${
+          isDark 
+            ? 'bg-gradient-to-b from-stone-900 via-stone-900 to-stone-800' 
+            : 'bg-gradient-to-b from-stone-50 via-white to-teal-50/30'
+        }`} />
+        <div className={`absolute inset-0 section-pattern ${isDark ? 'opacity-10' : 'opacity-30'}`} />
+        <div 
+          className="absolute bottom-0 left-[10%] w-96 h-96 rounded-full blur-3xl"
+          style={{ 
+            background: isDark 
+              ? `radial-gradient(circle, ${currentTheme.primaryHex}10 0%, transparent 70%)`
+              : `radial-gradient(circle, ${currentTheme.primaryHex}20 0%, transparent 70%)`
+          }}
+        />
+        <div className={`absolute top-20 right-[5%] w-80 h-80 rounded-full blur-3xl ${
+          isDark ? 'bg-orange-500/10' : 'bg-orange-100/20'
+        }`} />
       </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -27,15 +59,20 @@ const Contact: React.FC = () => {
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="animate-fade-in-up">
-              <Subtitle className="mb-4">Visit Us</Subtitle>
+              <Subtitle className={`mb-4 ${isDark ? 'text-stone-400' : ''}`}>Visit Us</Subtitle>
             </div>
             <div className="animate-fade-in-up animation-delay-100">
-              <SectionHeading className="mb-6">
-                Come <span className="gradient-text">See Us</span> Today
-              </SectionHeading>
+              <h2 className={`font-display font-bold text-3xl sm:text-4xl mb-6 ${isDark ? 'text-white' : 'text-stone-900'}`}>
+                Come <span 
+                  className="bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryLight})`
+                  }}
+                >See Us</span> Today
+              </h2>
             </div>
             <div className="animate-fade-in-up animation-delay-200">
-              <BodyText size="lg" className="text-stone-600">
+              <BodyText size="lg" className={isDark ? 'text-stone-400' : 'text-stone-600'}>
                 We&apos;re conveniently located on Old Negombo Road in Ja-Ela. 
                 Stop by anytime during business hours!
               </BodyText>
@@ -49,24 +86,24 @@ const Contact: React.FC = () => {
                 <ContactBlock
                   type="location"
                   label="Our Address"
-                  value="No 16, Old Negombo Rd"
-                  subValue="Ja-Ela, Sri Lanka"
-                  href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
+                  value={settings?.address?.line1 || 'No 16, Old Negombo Rd'}
+                  subValue={settings?.address?.line2 || 'Ja-Ela, Sri Lanka'}
+                  href={settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7'}
                 />
                 
                 <ContactBlock
                   type="phone"
                   label="Call Us"
-                  value="072 290 2299"
+                  value={settings?.contact?.phone || '072 290 2299'}
                   subValue="Tap to call directly"
-                  href="tel:0722902299"
+                  href={`tel:${settings?.contact?.phone?.replace(/\s/g, '') || '0722902299'}`}
                 />
                 
                 <ContactBlock
                   type="hours"
                   label="Business Hours"
-                  value="Open Daily"
-                  subValue="Closes at 9:30 PM"
+                  value={settings?.businessHours?.openDays || 'Open Daily'}
+                  subValue={`Closes at ${settings?.businessHours?.closeTime || '9:30 PM'}`}
                 />
               </div>
 
@@ -74,7 +111,7 @@ const Contact: React.FC = () => {
               <div className="space-y-3 mb-8">
                 <div className="flex flex-col sm:flex-row gap-3">
                   <Button
-                    href="tel:0722902299"
+                    href={`tel:${settings?.contact?.phone?.replace(/\s/g, '') || '0722902299'}`}
                     variant="primary"
                     size="lg"
                     icon={<Icon name="phone" size={20} />}
@@ -85,7 +122,7 @@ const Contact: React.FC = () => {
                   </Button>
                   
                   <Button
-                    href="https://wa.me/94722902299"
+                    href={`https://wa.me/${settings?.contact?.whatsapp?.replace(/\+/g, '') || '94722902299'}`}
                     variant="cta"
                     size="lg"
                     icon={<Icon name="whatsapp" size={20} />}
@@ -99,7 +136,7 @@ const Contact: React.FC = () => {
 
                 {/* Directions Button */}
                 <Button
-                  href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
+                  href={settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7'}
                   variant="outline"
                   size="lg"
                   icon={<Icon name="location" size={20} />}
@@ -111,30 +148,34 @@ const Contact: React.FC = () => {
               </div>
 
               {/* Social Links */}
-              <div className="
+              <div className={`
                 p-6
-                bg-white/80 backdrop-blur-sm
+                backdrop-blur-sm
                 rounded-2xl
-                border border-stone-200/60
+                border
                 shadow-sm
-              ">
+                ${isDark 
+                  ? 'bg-stone-800/80 border-stone-700' 
+                  : 'bg-white/80 border-stone-200/60'
+                }
+              `}>
                 <div className="flex items-center gap-4">
-                  <div className="
+                  <div className={`
                     w-12 h-12 rounded-xl
-                    bg-blue-50
                     flex items-center justify-center
                     flex-shrink-0
-                  ">
-                    <Icon name="facebook" size={24} className="text-blue-600" />
+                    ${isDark ? 'bg-blue-500/20' : 'bg-blue-50'}
+                  `}>
+                    <Icon name="facebook" size={24} className="text-blue-500" />
                   </div>
                   
                   <div className="flex-1">
-                    <p className="font-semibold text-stone-800 mb-0.5">Follow us on Facebook</p>
-                    <p className="text-sm text-stone-500">Stay updated with new arrivals</p>
+                    <p className={`font-semibold mb-0.5 ${isDark ? 'text-white' : 'text-stone-800'}`}>Follow us on Facebook</p>
+                    <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Stay updated with new arrivals</p>
                   </div>
                   
                   <a
-                    href="https://www.facebook.com/galaxymblstore/"
+                    href={settings?.social?.facebook || 'https://www.facebook.com/galaxymblstore/'}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="
@@ -154,59 +195,72 @@ const Contact: React.FC = () => {
 
             {/* Google Map Side */}
             <div className="animate-fade-in-up animation-delay-400">
-              <div className="
+              <div className={`
                 relative
-                bg-white rounded-2xl
-                border border-stone-200/60
+                rounded-2xl
+                border
                 overflow-hidden
-                shadow-xl shadow-stone-200/50
+                shadow-xl
                 h-[400px] lg:h-full lg:min-h-[520px]
-              ">
+                ${isDark 
+                  ? 'bg-stone-800 border-stone-700 shadow-stone-900/50' 
+                  : 'bg-white border-stone-200/60 shadow-stone-200/50'
+                }
+              `}>
                 {/* Map */}
                 <iframe
-                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.4660912040856!2d79.88908!3d7.0719!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2f9dacd5fc8e1%3A0x9a6e8c7f5c8b8e0!2sOld%20Negombo%20Rd%2C%20Ja-Ela%2C%20Sri%20Lanka!5e0!3m2!1sen!2slk!4v1703433600000!5m2!1sen!2slk"
+                  src={mapsEmbedUrl}
                   width="100%"
                   height="100%"
                   style={{ border: 0 }}
                   allowFullScreen
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title="Prasanna Mobile Center Location - Ja-Ela, Sri Lanka"
-                  className="grayscale-[10%] hover:grayscale-0 transition-all duration-500"
+                  title={`${settings?.siteName || 'Prasanna Mobile Center'} Location`}
+                  className={`hover:grayscale-0 transition-all duration-500 ${isDark ? 'grayscale-[30%] opacity-90' : 'grayscale-[10%]'}`}
                 />
                 
                 {/* Map Overlay Card */}
-                <div className="
+                <div className={`
                   absolute bottom-4 left-4 right-4
-                  bg-white/95 backdrop-blur-md
+                  backdrop-blur-md
                   rounded-xl
                   p-4
                   shadow-lg
-                  border border-stone-100
-                ">
+                  border
+                  ${isDark 
+                    ? 'bg-stone-800/95 border-stone-700' 
+                    : 'bg-white/95 border-stone-100'
+                  }
+                `}>
                   <div className="flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center">
-                        <Icon name="location" size={20} className="text-teal-600" />
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center"
+                        style={{ backgroundColor: `${currentTheme.primaryHex}15` }}
+                      >
+                        <Icon name="location" size={20} style={{ color: currentTheme.primaryHex }} />
                       </div>
                       <div>
-                        <p className="font-semibold text-stone-800 text-sm">Prasanna Mobile Center</p>
-                        <p className="text-xs text-stone-500">No 16, Old Negombo Rd, Ja-Ela</p>
+                        <p className={`font-semibold text-sm ${isDark ? 'text-white' : 'text-stone-800'}`}>{settings?.siteName || 'Prasanna Mobile Center'}</p>
+                        <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{settings?.address?.line1 || 'No 16, Old Negombo Rd'}, {settings?.address?.line2?.split(',')[0] || 'Ja-Ela'}</p>
                       </div>
                     </div>
                     <a
-                      href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
+                      href={settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7'}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="
                         px-4 py-2
-                        bg-teal-600 hover:bg-teal-700
                         text-white text-sm font-medium
                         rounded-lg
                         transition-colors
                         flex items-center gap-1.5
                         flex-shrink-0
                       "
+                      style={{ 
+                        backgroundColor: currentTheme.primaryHex
+                      }}
                     >
                       <span>Directions</span>
                       <Icon name="arrow-right" size={14} />
@@ -217,7 +271,7 @@ const Contact: React.FC = () => {
               
               {/* Map Caption */}
               <div className="mt-4 text-center">
-                <p className="text-sm text-stone-500 flex items-center justify-center gap-2">
+                <p className={`text-sm flex items-center justify-center gap-2 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
                   <span className="text-lg">📍</span>
                   Located on Old Negombo Road, Ja-Ela - Easy to find!
                 </p>

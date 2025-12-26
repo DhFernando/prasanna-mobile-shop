@@ -1,11 +1,13 @@
 /**
  * FormCheckbox Component
  * Styled checkbox/toggle for forms
+ * Supports dark/light mode
  */
 
 'use client';
 
 import React from 'react';
+import { useTheme } from '@/lib/theme';
 
 interface FormCheckboxProps {
   label: string;
@@ -22,6 +24,8 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({
   onChange,
   description,
 }) => {
+  const { isDark, currentTheme } = useTheme();
+
   return (
     <div className="flex items-start gap-3 mb-4">
       <div className="pt-0.5">
@@ -31,26 +35,32 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({
           type="checkbox"
           checked={checked}
           onChange={onChange}
-          className="
+          className={`
             w-5 h-5
             rounded-md
-            border-stone-300
-            text-teal-600
-            focus:ring-2 focus:ring-teal-500/20 focus:ring-offset-0
             cursor-pointer
             transition-colors
-          "
+            focus:ring-2 focus:ring-offset-0
+            ${isDark 
+              ? 'bg-stone-700 border-stone-500' 
+              : 'border-stone-300'
+            }
+          `}
+          style={{ 
+            accentColor: currentTheme.primaryHex,
+            '--tw-ring-color': `${currentTheme.primaryHex}30` 
+          } as React.CSSProperties}
         />
       </div>
       <div>
         <label 
           htmlFor={name}
-          className="block text-sm font-medium text-stone-700 cursor-pointer"
+          className={`block text-sm font-medium cursor-pointer ${isDark ? 'text-stone-300' : 'text-stone-700'}`}
         >
           {label}
         </label>
         {description && (
-          <p className="text-sm text-stone-500 mt-0.5">{description}</p>
+          <p className={`text-sm mt-0.5 ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>{description}</p>
         )}
       </div>
     </div>
@@ -58,4 +68,3 @@ const FormCheckbox: React.FC<FormCheckboxProps> = ({
 };
 
 export default FormCheckbox;
-

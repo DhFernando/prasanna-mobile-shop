@@ -1,11 +1,13 @@
 /**
  * FormInput Component
  * Reusable form input with label and error handling
+ * Supports dark/light mode
  */
 
 'use client';
 
 import React from 'react';
+import { useTheme } from '@/lib/theme';
 
 interface FormInputProps {
   label: string;
@@ -36,21 +38,32 @@ const FormInput: React.FC<FormInputProps> = ({
   min,
   step,
 }) => {
+  const { isDark, currentTheme } = useTheme();
+
   const baseInputClasses = `
     w-full px-4 py-3
-    bg-white
     border rounded-xl
-    text-stone-900 placeholder-stone-400
     transition-all duration-200
-    focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500
-    ${error ? 'border-red-300 focus:ring-red-500/20 focus:border-red-500' : 'border-stone-200'}
+    focus:outline-none focus:ring-2
+    ${isDark 
+      ? `bg-stone-800 border-stone-600 text-white placeholder-stone-500 focus:border-stone-500`
+      : `bg-white border-stone-200 text-stone-900 placeholder-stone-400 focus:border-teal-500`
+    }
+    ${error 
+      ? isDark 
+        ? 'border-red-500/50 focus:ring-red-500/20 focus:border-red-500' 
+        : 'border-red-300 focus:ring-red-500/20 focus:border-red-500' 
+      : ''
+    }
   `;
+
+  const focusRingStyle = { '--tw-ring-color': `${currentTheme.primaryHex}20` } as React.CSSProperties;
 
   return (
     <div className="mb-4">
       <label 
         htmlFor={name}
-        className="block text-sm font-medium text-stone-700 mb-1.5"
+        className={`block text-sm font-medium mb-1.5 ${isDark ? 'text-stone-300' : 'text-stone-700'}`}
       >
         {label}
         {required && <span className="text-red-500 ml-1">*</span>}
@@ -66,6 +79,7 @@ const FormInput: React.FC<FormInputProps> = ({
           required={required}
           rows={rows}
           className={`${baseInputClasses} resize-none`}
+          style={focusRingStyle}
         />
       ) : type === 'select' ? (
         <select
@@ -75,6 +89,7 @@ const FormInput: React.FC<FormInputProps> = ({
           onChange={onChange}
           required={required}
           className={baseInputClasses}
+          style={focusRingStyle}
         >
           <option value="">Select {label}</option>
           {options.map((opt) => (
@@ -95,15 +110,15 @@ const FormInput: React.FC<FormInputProps> = ({
           min={min}
           step={step}
           className={baseInputClasses}
+          style={focusRingStyle}
         />
       )}
       
       {error && (
-        <p className="mt-1.5 text-sm text-red-600">{error}</p>
+        <p className={`mt-1.5 text-sm ${isDark ? 'text-red-400' : 'text-red-600'}`}>{error}</p>
       )}
     </div>
   );
 };
 
 export default FormInput;
-

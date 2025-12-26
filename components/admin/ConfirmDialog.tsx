@@ -1,19 +1,21 @@
 /**
  * Confirm Dialog Component
  * Simple confirmation dialog for delete actions
+ * Supports dark/light mode
  */
 
 'use client';
 
 import React from 'react';
 import { Icon } from '@/components/atoms';
+import { useTheme } from '@/lib/theme';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
   title: string;
-  message: string;
+  message: React.ReactNode;
   confirmText?: string;
   confirmVariant?: 'danger' | 'primary';
   isLoading?: boolean;
@@ -29,6 +31,8 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   confirmVariant = 'danger',
   isLoading = false,
 }) => {
+  const { isDark, currentTheme } = useTheme();
+
   if (!isOpen) return null;
 
   const handleBackdropClick = (e: React.MouseEvent) => {
@@ -37,37 +41,42 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   return (
     <div 
-      className="
+      className={`
         fixed inset-0 z-50
         flex items-center justify-center
         p-4
-        bg-stone-900/60 backdrop-blur-sm
+        backdrop-blur-sm
         animate-fade-in
-      "
+        ${isDark ? 'bg-black/70' : 'bg-stone-900/60'}
+      `}
       onClick={handleBackdropClick}
     >
-      <div className="
+      <div className={`
         w-full max-w-sm
-        bg-white rounded-2xl
-        shadow-2xl shadow-stone-900/20
+        rounded-2xl
+        shadow-2xl
         animate-scale-in
         p-6
-      ">
+        ${isDark 
+          ? 'bg-stone-900 shadow-black/40' 
+          : 'bg-white shadow-stone-900/20'
+        }
+      `}>
         {/* Icon */}
-        <div className="
+        <div className={`
           w-14 h-14 mx-auto mb-4
           rounded-full
-          bg-red-100
           flex items-center justify-center
-        ">
-          <Icon name="close" size={28} className="text-red-600" />
+          ${isDark ? 'bg-red-500/20' : 'bg-red-100'}
+        `}>
+          <Icon name="close" size={28} className={isDark ? 'text-red-400' : 'text-red-600'} />
         </div>
         
         {/* Content */}
-        <h3 className="text-lg font-semibold text-stone-900 text-center mb-2">
+        <h3 className={`text-lg font-semibold text-center mb-2 ${isDark ? 'text-white' : 'text-stone-900'}`}>
           {title}
         </h3>
-        <p className="text-stone-600 text-center mb-6">
+        <p className={`text-center mb-6 ${isDark ? 'text-stone-400' : 'text-stone-600'}`}>
           {message}
         </p>
         
@@ -76,14 +85,16 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <button
             onClick={onClose}
             disabled={isLoading}
-            className="
+            className={`
               flex-1 py-3 px-4
               rounded-xl font-semibold
-              bg-stone-100 text-stone-700
-              hover:bg-stone-200
               transition-colors
               disabled:opacity-50
-            "
+              ${isDark 
+                ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' 
+                : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              }
+            `}
           >
             Cancel
           </button>
@@ -99,9 +110,12 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
               flex items-center justify-center gap-2
               ${confirmVariant === 'danger' 
                 ? 'bg-red-600 hover:bg-red-700' 
-                : 'bg-teal-600 hover:bg-teal-700'
+                : ''
               }
             `}
+            style={confirmVariant === 'primary' ? { 
+              backgroundColor: currentTheme.primaryHex 
+            } : {}}
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -116,4 +130,3 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 };
 
 export default ConfirmDialog;
-

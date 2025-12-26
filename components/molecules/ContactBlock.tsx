@@ -2,11 +2,15 @@
  * ContactBlock Molecule
  * Contact information display with icon
  * Premium design with hover effects
+ * Supports dark/light mode
  */
+
+'use client';
 
 import React from 'react';
 import Icon from '../atoms/Icon';
 import { BodyText, LabelText } from '../atoms/Typography';
+import { useTheme } from '@/lib/theme';
 
 interface ContactBlockProps {
   type: 'phone' | 'location' | 'hours';
@@ -23,6 +27,8 @@ const ContactBlock: React.FC<ContactBlockProps> = ({
   subValue,
   href 
 }) => {
+  const { isDark, currentTheme } = useTheme();
+  
   const iconMap = {
     phone: 'phone',
     location: 'location',
@@ -32,21 +38,15 @@ const ContactBlock: React.FC<ContactBlockProps> = ({
   const colorConfig = {
     phone: {
       gradient: 'from-teal-500 to-teal-600',
-      bg: 'bg-teal-50',
       shadow: 'shadow-teal-500/20',
-      hoverBorder: 'hover:border-teal-200',
     },
     location: {
       gradient: 'from-emerald-500 to-emerald-600',
-      bg: 'bg-emerald-50',
       shadow: 'shadow-emerald-500/20',
-      hoverBorder: 'hover:border-emerald-200',
     },
     hours: {
       gradient: 'from-amber-500 to-orange-500',
-      bg: 'bg-amber-50',
       shadow: 'shadow-amber-500/20',
-      hoverBorder: 'hover:border-amber-200',
     }
   };
 
@@ -56,12 +56,15 @@ const ContactBlock: React.FC<ContactBlockProps> = ({
     <div className={`
       flex items-start gap-4
       p-5 sm:p-6
-      bg-white rounded-xl
-      border border-stone-200/60
-      ${config.hoverBorder}
+      rounded-xl
+      border
       hover:shadow-lg
       transition-all duration-300
       group
+      ${isDark 
+        ? 'bg-stone-800 border-stone-700 hover:border-stone-600' 
+        : 'bg-white border-stone-200/60 hover:border-stone-300'
+      }
     `}>
       {/* Icon */}
       <div className={`
@@ -79,14 +82,14 @@ const ContactBlock: React.FC<ContactBlockProps> = ({
 
       {/* Content */}
       <div className="flex-1 min-w-0 pt-0.5">
-        <LabelText className="block mb-1.5 text-xs text-stone-400">
+        <LabelText className={`block mb-1.5 text-xs ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
           {label}
         </LabelText>
-        <p className="font-semibold text-stone-800 break-words text-lg leading-tight">
+        <p className={`font-semibold break-words text-lg leading-tight ${isDark ? 'text-white' : 'text-stone-800'}`}>
           {value}
         </p>
         {subValue && (
-          <BodyText size="sm" muted className="mt-1">
+          <BodyText size="sm" muted className={`mt-1 ${isDark ? 'text-stone-400' : ''}`}>
             {subValue}
           </BodyText>
         )}
@@ -94,19 +97,23 @@ const ContactBlock: React.FC<ContactBlockProps> = ({
 
       {/* Arrow indicator for links */}
       {href && (
-        <div className="
+        <div className={`
           w-8 h-8 rounded-full
-          bg-stone-50 
-          group-hover:bg-teal-50
           flex items-center justify-center
           transition-colors duration-300
           flex-shrink-0
           mt-1
-        ">
+          ${isDark 
+            ? 'bg-stone-700 group-hover:bg-stone-600' 
+            : 'bg-stone-50 group-hover:bg-stone-100'
+          }
+        `}>
           <Icon 
             name="arrow-right" 
             size={16} 
-            className="text-stone-400 group-hover:text-teal-600 group-hover:translate-x-0.5 transition-all duration-300" 
+            className={`group-hover:translate-x-0.5 transition-all duration-300 ${
+              isDark ? 'text-stone-400 group-hover:text-stone-200' : 'text-stone-400 group-hover:text-stone-600'
+            }`}
           />
         </div>
       )}

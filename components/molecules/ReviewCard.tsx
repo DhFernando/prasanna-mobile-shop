@@ -2,11 +2,15 @@
  * ReviewCard Molecule
  * Displays customer review with rating
  * Premium design with subtle animations
+ * Supports dark/light mode
  */
+
+'use client';
 
 import React from 'react';
 import Icon from '../atoms/Icon';
 import { BodyText, CardTitle } from '../atoms/Typography';
+import { useTheme } from '@/lib/theme';
 
 interface ReviewCardProps {
   name: string;
@@ -23,39 +27,44 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
   date,
   delay = 0 
 }) => {
+  const { isDark, currentTheme } = useTheme();
+  
   // Generate initials for avatar
   const initials = name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
   
   return (
     <div 
-      className="
+      className={`
         group
         relative
-        bg-white rounded-2xl
+        rounded-2xl
         p-7 sm:p-8
-        border border-stone-200/60
-        shadow-sm shadow-stone-100
-        hover:shadow-xl hover:shadow-teal-500/8
-        hover:border-teal-200/50
+        border
+        shadow-sm
+        hover:shadow-xl
         transition-all duration-500
         animate-fade-in-up
         stagger-item
         overflow-hidden
-      "
+        ${isDark 
+          ? 'bg-stone-800 border-stone-700 hover:border-stone-600' 
+          : 'bg-white border-stone-200/60 shadow-stone-100 hover:shadow-teal-500/8 hover:border-teal-200/50'
+        }
+      `}
       style={{ 
         animationDelay: `${delay}ms`,
         animationFillMode: 'forwards'
       }}
     >
       {/* Quote decoration */}
-      <div className="
+      <div className={`
         absolute top-6 right-6
-        text-7xl font-serif text-stone-100
+        text-7xl font-serif
         leading-none
-        group-hover:text-teal-100
         transition-colors duration-500
         select-none
-      ">
+        ${isDark ? 'text-stone-700' : 'text-stone-100 group-hover:text-teal-100'}
+      `}>
         &ldquo;
       </div>
 
@@ -65,7 +74,7 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
           <span 
             key={i}
             className={`
-              ${i < rating ? 'text-amber-400' : 'text-stone-200'}
+              ${i < rating ? 'text-amber-400' : isDark ? 'text-stone-600' : 'text-stone-200'}
               group-hover:scale-110
               transition-transform duration-300
             `}
@@ -74,41 +83,46 @@ const ReviewCard: React.FC<ReviewCardProps> = ({
             <Icon name="star" size={20} />
           </span>
         ))}
-        <span className="ml-2 text-sm font-semibold text-amber-600">{rating}.0</span>
+        <span className="ml-2 text-sm font-semibold text-amber-500">{rating}.0</span>
       </div>
 
       {/* Review Text */}
-      <BodyText className="mb-6 text-stone-700 relative z-10 leading-relaxed">
+      <BodyText className={`mb-6 relative z-10 leading-relaxed ${isDark ? 'text-stone-300' : 'text-stone-700'}`}>
         &ldquo;{text}&rdquo;
       </BodyText>
 
       {/* Reviewer Info */}
-      <div className="flex items-center justify-between border-t border-stone-100 pt-5 relative z-10">
+      <div className={`flex items-center justify-between border-t pt-5 relative z-10 ${isDark ? 'border-stone-700' : 'border-stone-100'}`}>
         <div className="flex items-center gap-3">
           {/* Avatar */}
-          <div className="
-            w-11 h-11 rounded-full
-            bg-gradient-to-br from-teal-500 to-emerald-600
-            flex items-center justify-center
-            text-white font-semibold text-sm
-            shadow-md shadow-teal-500/30
-            group-hover:scale-110
-            transition-transform duration-300
-          ">
+          <div 
+            className="
+              w-11 h-11 rounded-full
+              flex items-center justify-center
+              text-white font-semibold text-sm
+              shadow-md
+              group-hover:scale-110
+              transition-transform duration-300
+            "
+            style={{ 
+              background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+              boxShadow: `0 4px 14px ${currentTheme.primaryHex}40`
+            }}
+          >
             {initials}
           </div>
           <div>
-            <CardTitle as="h4" className="text-base font-semibold text-stone-800">
+            <h4 className={`text-base font-semibold ${isDark ? 'text-white' : 'text-stone-800'}`}>
               {name}
-            </CardTitle>
-            <p className="text-xs text-stone-400 flex items-center gap-1">
-              <Icon name="check" size={12} className="text-teal-500" />
+            </h4>
+            <p className={`text-xs flex items-center gap-1 ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
+              <Icon name="check" size={12} style={{ color: currentTheme.primaryHex }} />
               Verified Customer
             </p>
           </div>
         </div>
         {date && (
-          <BodyText size="sm" muted>
+          <BodyText size="sm" muted className={isDark ? 'text-stone-500' : ''}>
             {date}
           </BodyText>
         )}

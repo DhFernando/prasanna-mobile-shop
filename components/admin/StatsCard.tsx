@@ -1,10 +1,14 @@
 /**
  * StatsCard Component
  * Dashboard statistics card
+ * Supports dark/light mode
  */
+
+'use client';
 
 import React from 'react';
 import { Icon } from '@/components/atoms';
+import { useTheme } from '@/lib/theme';
 
 interface StatsCardProps {
   title: string;
@@ -21,6 +25,8 @@ const StatsCard: React.FC<StatsCardProps> = ({
   color,
   subtitle,
 }) => {
+  const { isDark } = useTheme();
+
   const colorClasses = {
     teal: 'from-teal-500 to-emerald-600 shadow-teal-500/25',
     amber: 'from-amber-500 to-orange-500 shadow-amber-500/25',
@@ -31,19 +37,35 @@ const StatsCard: React.FC<StatsCardProps> = ({
   };
 
   return (
-    <div className="
-      bg-white rounded-xl
-      border border-stone-200/60
-      p-6
-      hover:shadow-lg hover:border-stone-200
+    <div className={`
+      rounded-xl border p-6
       transition-all duration-300
-    ">
+      ${isDark 
+        ? 'bg-stone-800/50 border-stone-700 hover:border-stone-600 hover:bg-stone-800' 
+        : 'bg-white border-stone-200/60 hover:shadow-lg hover:border-stone-200'
+      }
+    `}>
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-stone-500 mb-1">{title}</p>
-          <p className="text-3xl font-display font-bold text-stone-900">{value}</p>
+          <p className={`
+            text-sm font-medium mb-1
+            ${isDark ? 'text-stone-400' : 'text-stone-500'}
+          `}>
+            {title}
+          </p>
+          <p className={`
+            text-3xl font-display font-bold
+            ${isDark ? 'text-white' : 'text-stone-900'}
+          `}>
+            {value}
+          </p>
           {subtitle && (
-            <p className="text-sm text-stone-400 mt-1">{subtitle}</p>
+            <p className={`
+              text-sm mt-1
+              ${isDark ? 'text-stone-500' : 'text-stone-400'}
+            `}>
+              {subtitle}
+            </p>
           )}
         </div>
         <div className={`
@@ -60,4 +82,3 @@ const StatsCard: React.FC<StatsCardProps> = ({
 };
 
 export default StatsCard;
-

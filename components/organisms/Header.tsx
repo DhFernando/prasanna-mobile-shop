@@ -1,8 +1,9 @@
 /**
  * Header Organism
  * Main navigation header with logo, navigation, and global search
- * Premium design with teal color scheme
+ * Premium design with theme color scheme
  * Sticky header that appears below announcements banner
+ * Supports dark/light mode
  */
 
 'use client';
@@ -10,12 +11,21 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { Button, Icon } from '../atoms';
-import { GlobalSearch } from '../molecules';
+import { GlobalSearch, ThemeSwitcher } from '../molecules';
+import { useTheme } from '@/lib/theme';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 const Header: React.FC = () => {
+  const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  
+  // Extract site name parts
+  const siteNameParts = settings?.siteName?.split(' ') || ['Prasanna', 'Mobile', 'Center'];
+  const firstPart = siteNameParts[0] || 'Prasanna';
+  const restPart = siteNameParts.slice(1).join(' ') || 'Mobile Center';
 
   // Handle scroll effect
   useEffect(() => {
@@ -58,8 +68,12 @@ const Header: React.FC = () => {
         sticky top-0 left-0 right-0 z-50
         transition-all duration-300
         ${isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg shadow-stone-900/5 py-3' 
-          : 'bg-white/80 backdrop-blur-sm py-4'
+          ? isDark
+            ? 'bg-stone-900/95 backdrop-blur-md shadow-lg shadow-stone-900/50 py-3'
+            : 'bg-white/95 backdrop-blur-md shadow-lg shadow-stone-900/5 py-3' 
+          : isDark
+            ? 'bg-stone-900/80 backdrop-blur-sm py-4'
+            : 'bg-white/80 backdrop-blur-sm py-4'
         }
       `}>
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -68,28 +82,33 @@ const Header: React.FC = () => {
             <Link 
               href="/" 
               className="flex items-center gap-3 group"
-              aria-label="Prasanna Mobile Center - Home"
+              aria-label={`${settings?.siteName || 'Prasanna Mobile Center'} - Home`}
             >
               {/* Logo Icon */}
-              <div className="
-                w-11 h-11 sm:w-12 sm:h-12
-                rounded-xl
-                bg-gradient-to-br from-teal-500 to-emerald-600
-                flex items-center justify-center
-                group-hover:scale-105
-                transition-transform duration-300
-                shadow-lg shadow-teal-500/30
-              ">
+              <div 
+                className="
+                  w-11 h-11 sm:w-12 sm:h-12
+                  rounded-xl
+                  flex items-center justify-center
+                  group-hover:scale-105
+                  transition-transform duration-300
+                  shadow-lg
+                "
+                style={{ 
+                  background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+                  boxShadow: `0 4px 14px ${currentTheme.primaryHex}40`
+                }}
+              >
                 <Icon name="smartphone" size={24} className="text-white" />
               </div>
               
               {/* Logo Text */}
               <div className="hidden sm:block">
-                <h1 className="font-display font-bold text-xl text-stone-900 leading-tight tracking-tight">
-                  Prasanna
+                <h1 className={`font-display font-bold text-xl leading-tight tracking-tight ${isDark ? 'text-white' : 'text-stone-900'}`}>
+                  {firstPart}
                 </h1>
-                <p className="text-xs text-stone-500 font-medium -mt-0.5">
-                  Mobile Center
+                <p className={`text-xs font-medium -mt-0.5 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
+                  {restPart}
                 </p>
               </div>
             </Link>
@@ -104,16 +123,18 @@ const Header: React.FC = () => {
                     font-medium
                     transition-colors duration-200
                     relative
-                    ${link.highlight 
-                      ? 'text-teal-600 hover:text-teal-700' 
-                      : 'text-stone-600 hover:text-teal-600'
-                    }
                     after:absolute after:bottom-[-4px] after:left-0 after:right-0
-                    after:h-0.5 after:bg-gradient-to-r after:from-teal-500 after:to-emerald-500
-                    after:scale-x-0 after:origin-center
+                    after:h-0.5 after:scale-x-0 after:origin-center
                     after:transition-transform after:duration-300
                     hover:after:scale-x-100
+                    ${link.highlight 
+                      ? '' 
+                      : isDark
+                        ? 'text-stone-300 hover:text-white'
+                        : 'text-stone-600 hover:text-stone-900'
+                    }
                   `}
+                  style={link.highlight ? { color: currentTheme.primaryHex } : {}}
                 >
                   {link.label}
                 </Link>
@@ -128,52 +149,67 @@ const Header: React.FC = () => {
                   setIsSearchOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="
+                className={`
                   hidden sm:flex
                   items-center gap-2
                   px-3 py-2
                   rounded-xl
-                  bg-stone-100 hover:bg-stone-200
                   transition-colors
                   group
-                "
+                  ${isDark 
+                    ? 'bg-stone-800 hover:bg-stone-700' 
+                    : 'bg-stone-100 hover:bg-stone-200'
+                  }
+                `}
                 aria-label="Search products (Ctrl+K)"
               >
-                <Icon name="search" size={18} className="text-stone-500" />
-                <span className="text-sm text-stone-500 hidden md:inline">Search...</span>
-                <kbd className="hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono text-stone-400 bg-white border border-stone-200 rounded">
+                <Icon name="search" size={18} className={isDark ? 'text-stone-400' : 'text-stone-500'} />
+                <span className={`text-sm hidden md:inline ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Search...</span>
+                <kbd className={`hidden lg:inline-flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] font-mono rounded ${
+                  isDark 
+                    ? 'text-stone-500 bg-stone-700 border border-stone-600' 
+                    : 'text-stone-400 bg-white border border-stone-200'
+                }`}>
                   <span>⌘</span>K
                 </kbd>
               </button>
 
+              {/* Theme Switcher - User only (dark/light mode) */}
+              <div className="hidden sm:block">
+                <ThemeSwitcher compact isAdmin={false} />
+              </div>
+
               {/* Call Button - Desktop */}
               <Button
-                href="tel:0722902299"
+                href={`tel:${settings?.contact?.phone?.replace(/\s/g, '') || '0722902299'}`}
                 variant="primary"
                 size="sm"
                 icon={<Icon name="phone" size={18} />}
-                ariaLabel="Call us at 072 290 2299"
+                ariaLabel={`Call us at ${settings?.contact?.phone || '072 290 2299'}`}
                 className="hidden sm:inline-flex"
               >
-                <span className="hidden md:inline">072 290 2299</span>
+                <span className="hidden md:inline">{settings?.contact?.phone || '072 290 2299'}</span>
                 <span className="md:hidden">Call</span>
               </Button>
 
               {/* Mobile Call Button */}
               <a
-                href="tel:0722902299"
+                href={`tel:${settings?.contact?.phone?.replace(/\s/g, '') || '0722902299'}`}
                 className="
                   sm:hidden
                   w-10 h-10
                   rounded-xl
-                  bg-gradient-to-r from-teal-600 to-teal-500
                   flex items-center justify-center
                   text-white
-                  shadow-lg shadow-teal-500/30
+                  shadow-lg
                   hover:scale-105
                   active:scale-95
                   transition-transform
                 "
+                style={{ 
+                  background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+                  boxShadow: `0 4px 14px ${currentTheme.primaryHex}40`
+                }}
                 aria-label="Call us"
               >
                 <Icon name="phone" size={18} />
@@ -185,17 +221,20 @@ const Header: React.FC = () => {
                   setIsSearchOpen(true);
                   setIsMobileMenuOpen(false);
                 }}
-                className="
+                className={`
                   sm:hidden
                   w-10 h-10
                   rounded-xl
-                  bg-stone-100 hover:bg-stone-200
                   flex items-center justify-center
                   transition-colors
-                "
+                  ${isDark 
+                    ? 'bg-stone-800 hover:bg-stone-700' 
+                    : 'bg-stone-100 hover:bg-stone-200'
+                  }
+                `}
                 aria-label="Search products"
               >
-                <Icon name="search" size={18} className="text-stone-600" />
+                <Icon name="search" size={18} className={isDark ? 'text-stone-300' : 'text-stone-600'} />
               </button>
 
               {/* Mobile Menu Toggle */}
@@ -204,19 +243,21 @@ const Header: React.FC = () => {
                   setIsMobileMenuOpen(!isMobileMenuOpen);
                   setIsSearchOpen(false);
                 }}
-                className="
+                className={`
                   lg:hidden
                   w-10 h-10
                   rounded-xl
-                  bg-stone-100
-                  hover:bg-stone-200
                   flex items-center justify-center
                   transition-colors
-                "
+                  ${isDark 
+                    ? 'bg-stone-800 hover:bg-stone-700' 
+                    : 'bg-stone-100 hover:bg-stone-200'
+                  }
+                `}
                 aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
                 aria-expanded={isMobileMenuOpen}
               >
-                <Icon name={isMobileMenuOpen ? 'close' : 'menu'} size={20} className="text-stone-700" />
+                <Icon name={isMobileMenuOpen ? 'close' : 'menu'} size={20} className={isDark ? 'text-stone-300' : 'text-stone-700'} />
               </button>
             </div>
           </div>
@@ -228,12 +269,15 @@ const Header: React.FC = () => {
             transition-all duration-300
             ${isMobileMenuOpen ? 'max-h-[600px] opacity-100 mt-4' : 'max-h-0 opacity-0'}
           `}>
-            <nav className="
-              bg-white rounded-2xl
-              border border-stone-200/80
-              shadow-xl shadow-stone-900/10
+            <nav className={`
+              rounded-2xl
+              border shadow-xl
               p-5
-            ">
+              ${isDark 
+                ? 'bg-stone-800 border-stone-700 shadow-stone-900/50' 
+                : 'bg-white border-stone-200/80 shadow-stone-900/10'
+              }
+            `}>
               {navLinks.map((link, index) => (
                 <Link
                   key={link.label}
@@ -246,23 +290,31 @@ const Header: React.FC = () => {
                     rounded-xl
                     transition-colors
                     ${link.highlight 
-                      ? 'text-teal-600 bg-teal-50' 
-                      : 'text-stone-700 hover:text-teal-600 hover:bg-teal-50'
+                      ? '' 
+                      : isDark
+                        ? 'text-stone-300 hover:bg-stone-700 hover:text-white'
+                        : 'text-stone-700 hover:bg-stone-50 hover:text-stone-900'
                     }
                   `}
-                  style={{ animationDelay: `${index * 50}ms` }}
+                  style={link.highlight ? { 
+                    color: currentTheme.primaryHex,
+                    backgroundColor: `${currentTheme.primaryHex}15`
+                  } : {}}
                 >
                   {link.highlight && (
-                    <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                    <span 
+                      className="w-1.5 h-1.5 rounded-full" 
+                      style={{ backgroundColor: currentTheme.primaryHex }}
+                    />
                   )}
                   {link.label}
                 </Link>
               ))}
               
               {/* Mobile CTA */}
-              <div className="mt-5 pt-5 border-t border-stone-200 grid grid-cols-2 gap-3">
+              <div className={`mt-5 pt-5 border-t grid grid-cols-2 gap-3 ${isDark ? 'border-stone-700' : 'border-stone-200'}`}>
                 <Button
-                  href="tel:0722902299"
+                  href={`tel:${settings?.contact?.phone?.replace(/\s/g, '') || '0722902299'}`}
                   variant="primary"
                   size="md"
                   fullWidth
@@ -271,7 +323,7 @@ const Header: React.FC = () => {
                   Call Now
                 </Button>
                 <Button
-                  href="https://wa.me/94722902299"
+                  href={`https://wa.me/${settings?.contact?.whatsapp?.replace(/\+/g, '') || '94722902299'}`}
                   variant="cta"
                   size="md"
                   fullWidth
@@ -284,16 +336,16 @@ const Header: React.FC = () => {
               
               {/* Directions Link */}
               <a
-                href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
+                href={settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7'}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="
                   flex items-center justify-center gap-2
                   mt-3 py-3
-                  text-teal-600 font-medium text-sm
-                  hover:text-teal-700
+                  font-medium text-sm
                   transition-colors
                 "
+                style={{ color: currentTheme.primaryHex }}
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 <Icon name="location" size={16} />

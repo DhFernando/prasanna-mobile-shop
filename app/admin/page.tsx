@@ -1,6 +1,7 @@
 /**
  * Admin Dashboard Page
  * Overview with statistics, sales info, and quick actions
+ * Supports dark/light mode
  */
 
 'use client';
@@ -10,8 +11,10 @@ import Link from 'next/link';
 import { StatsCard } from '@/components/admin';
 import { Icon } from '@/components/atoms';
 import { Product, Category, Announcement, Sale, DashboardStats } from '@/lib/types';
+import { useTheme } from '@/lib/theme';
 
 export default function AdminDashboard() {
+  const { isDark, currentTheme } = useTheme();
   const [stats, setStats] = useState<DashboardStats>({
     totalProducts: 0,
     publishedProducts: 0,
@@ -92,13 +95,31 @@ export default function AdminDashboard() {
   // Get stock badge
   const getStockBadge = (product: Product) => {
     if (product.stockStatus === 'out_of_stock') {
-      return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-700">Out of Stock</span>;
+      return (
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDark ? 'bg-red-500/20 text-red-400' : 'bg-red-100 text-red-700'
+        }`}>
+          Out of Stock
+        </span>
+      );
     }
     if (product.stockStatus === 'low_stock') {
-      return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-700">Low Stock ({product.stockQuantity})</span>;
+      return (
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDark ? 'bg-amber-500/20 text-amber-400' : 'bg-amber-100 text-amber-700'
+        }`}>
+          Low Stock ({product.stockQuantity})
+        </span>
+      );
     }
     if (product.stockStatus === 'coming_soon') {
-      return <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-700">Coming Soon</span>;
+      return (
+        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+          isDark ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-700'
+        }`}>
+          Coming Soon
+        </span>
+      );
     }
     return null;
   };
@@ -106,7 +127,13 @@ export default function AdminDashboard() {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="w-8 h-8 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin" />
+        <div 
+          className="w-8 h-8 border-2 rounded-full animate-spin"
+          style={{ 
+            borderColor: `${currentTheme.primaryHex}30`,
+            borderTopColor: currentTheme.primaryHex 
+          }}
+        />
       </div>
     );
   }
@@ -115,10 +142,13 @@ export default function AdminDashboard() {
     <div className="max-w-7xl mx-auto">
       {/* Page Header */}
       <div className="mb-8">
-        <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 mb-2">
+        <h1 className={`
+          font-display text-2xl sm:text-3xl font-bold mb-2
+          ${isDark ? 'text-white' : 'text-stone-900'}
+        `}>
           Dashboard
         </h1>
-        <p className="text-stone-500">
+        <p className={isDark ? 'text-stone-400' : 'text-stone-500'}>
           Welcome to your admin panel. Here&apos;s an overview of your store.
         </p>
       </div>
@@ -157,16 +187,31 @@ export default function AdminDashboard() {
 
       {/* Alerts Section */}
       {(stats.lowStockProducts > 0 || stats.outOfStockProducts > 0) && (
-        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+        <div className={`
+          mb-6 p-4 rounded-xl border
+          ${isDark 
+            ? 'bg-amber-500/10 border-amber-500/30' 
+            : 'bg-amber-50 border-amber-200'
+          }
+        `}>
           <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-amber-100 flex items-center justify-center flex-shrink-0">
-              <Icon name="zap" size={16} className="text-amber-600" />
+            <div className={`
+              w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0
+              ${isDark ? 'bg-amber-500/20' : 'bg-amber-100'}
+            `}>
+              <Icon name="zap" size={16} className={isDark ? 'text-amber-400' : 'text-amber-600'} />
             </div>
             <div className="flex-1">
-              <h3 className="font-semibold text-amber-800 mb-1">Stock Alert</h3>
-              <p className="text-sm text-amber-700">
+              <h3 className={`font-semibold mb-1 ${isDark ? 'text-amber-400' : 'text-amber-800'}`}>
+                Stock Alert
+              </h3>
+              <p className={`text-sm ${isDark ? 'text-amber-300/80' : 'text-amber-700'}`}>
                 You have {stats.lowStockProducts} product(s) with low stock and {stats.outOfStockProducts} product(s) out of stock.
-                <Link href="/admin/products?filterStock=low_stock" className="ml-2 underline font-medium">
+                <Link 
+                  href="/admin/products?filterStock=low_stock" 
+                  className="ml-2 underline font-medium"
+                  style={{ color: currentTheme.primaryHex }}
+                >
                   View products →
                 </Link>
               </p>
@@ -178,35 +223,68 @@ export default function AdminDashboard() {
       {/* Quick Actions & Recent Activity */}
       <div className="grid lg:grid-cols-2 gap-6 mb-6">
         {/* Quick Actions */}
-        <div className="bg-white rounded-xl border border-stone-200/60 p-6">
-          <h2 className="font-display font-semibold text-lg text-stone-900 mb-4">
+        <div className={`
+          rounded-xl border p-6
+          ${isDark 
+            ? 'bg-stone-800/50 border-stone-700' 
+            : 'bg-white border-stone-200/60'
+          }
+        `}>
+          <h2 className={`
+            font-display font-semibold text-lg mb-4
+            ${isDark ? 'text-white' : 'text-stone-900'}
+          `}>
             Quick Actions
           </h2>
           <div className="grid grid-cols-2 gap-3">
             <Link
               href="/admin/products"
-              className="flex items-center gap-3 p-4 rounded-xl bg-teal-50 hover:bg-teal-100 text-teal-700 font-medium transition-colors"
+              className={`
+                flex items-center gap-3 p-4 rounded-xl font-medium transition-colors
+                ${isDark 
+                  ? 'bg-teal-500/10 hover:bg-teal-500/20 text-teal-400' 
+                  : 'bg-teal-50 hover:bg-teal-100 text-teal-700'
+                }
+              `}
             >
               <Icon name="smartphone" size={20} />
               Manage Products
             </Link>
             <Link
               href="/admin/sales"
-              className="flex items-center gap-3 p-4 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-medium transition-colors"
+              className={`
+                flex items-center gap-3 p-4 rounded-xl font-medium transition-colors
+                ${isDark 
+                  ? 'bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400' 
+                  : 'bg-emerald-50 hover:bg-emerald-100 text-emerald-700'
+                }
+              `}
             >
               <Icon name="heart" size={20} />
               Record Sale
             </Link>
             <Link
               href="/admin/categories"
-              className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 font-medium transition-colors"
+              className={`
+                flex items-center gap-3 p-4 rounded-xl font-medium transition-colors
+                ${isDark 
+                  ? 'bg-amber-500/10 hover:bg-amber-500/20 text-amber-400' 
+                  : 'bg-amber-50 hover:bg-amber-100 text-amber-700'
+                }
+              `}
             >
               <Icon name="tag" size={20} />
               Categories
             </Link>
             <Link
               href="/admin/announcements"
-              className="flex items-center gap-3 p-4 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-medium transition-colors"
+              className={`
+                flex items-center gap-3 p-4 rounded-xl font-medium transition-colors
+                ${isDark 
+                  ? 'bg-indigo-500/10 hover:bg-indigo-500/20 text-indigo-400' 
+                  : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700'
+                }
+              `}
             >
               <Icon name="sparkles" size={20} />
               Announcements
@@ -215,37 +293,58 @@ export default function AdminDashboard() {
         </div>
 
         {/* Recent Sales */}
-        <div className="bg-white rounded-xl border border-stone-200/60 p-6">
+        <div className={`
+          rounded-xl border p-6
+          ${isDark 
+            ? 'bg-stone-800/50 border-stone-700' 
+            : 'bg-white border-stone-200/60'
+          }
+        `}>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-display font-semibold text-lg text-stone-900">
+            <h2 className={`
+              font-display font-semibold text-lg
+              ${isDark ? 'text-white' : 'text-stone-900'}
+            `}>
               Recent Sales
             </h2>
             <Link
               href="/admin/sales"
-              className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+              className="text-sm font-medium hover:opacity-80 transition-opacity"
+              style={{ color: currentTheme.primaryHex }}
             >
               View all →
             </Link>
           </div>
           
           {recentSales.length === 0 ? (
-            <p className="text-stone-500 text-center py-8">No sales yet</p>
+            <p className={`text-center py-8 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
+              No sales yet
+            </p>
           ) : (
             <div className="space-y-3">
               {recentSales.map((sale) => (
                 <div
                   key={sale.id}
-                  className="flex items-center justify-between p-3 rounded-xl bg-stone-50/50 hover:bg-stone-100/50 transition-colors"
+                  className={`
+                    flex items-center justify-between p-3 rounded-xl transition-colors
+                    ${isDark 
+                      ? 'bg-stone-700/50 hover:bg-stone-700' 
+                      : 'bg-stone-50/50 hover:bg-stone-100/50'
+                    }
+                  `}
                 >
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-stone-900 truncate">
+                    <p className={`font-medium truncate ${isDark ? 'text-white' : 'text-stone-900'}`}>
                       {sale.itemName}
                     </p>
-                    <p className="text-xs text-stone-500">
+                    <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
                       {formatDate(sale.saleDate)} • Qty: {sale.quantity}
                     </p>
                   </div>
-                  <span className="font-semibold text-teal-600">
+                  <span 
+                    className="font-semibold"
+                    style={{ color: currentTheme.primaryHex }}
+                  >
                     Rs. {sale.totalPrice.toLocaleString()}
                   </span>
                 </div>
@@ -256,58 +355,85 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Products with Stock Status */}
-      <div className="bg-white rounded-xl border border-stone-200/60 p-6">
+      <div className={`
+        rounded-xl border p-6
+        ${isDark 
+          ? 'bg-stone-800/50 border-stone-700' 
+          : 'bg-white border-stone-200/60'
+        }
+      `}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display font-semibold text-lg text-stone-900">
+          <h2 className={`
+            font-display font-semibold text-lg
+            ${isDark ? 'text-white' : 'text-stone-900'}
+          `}>
             Products Overview
           </h2>
           <Link
             href="/admin/products"
-            className="text-sm text-teal-600 hover:text-teal-700 font-medium"
+            className="text-sm font-medium hover:opacity-80 transition-opacity"
+            style={{ color: currentTheme.primaryHex }}
           >
             View all →
           </Link>
         </div>
         
         {recentProducts.length === 0 ? (
-          <p className="text-stone-500 text-center py-8">No products yet</p>
+          <p className={`text-center py-8 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
+            No products yet
+          </p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead>
-                <tr className="text-left text-xs text-stone-500 uppercase tracking-wider border-b border-stone-100">
+                <tr className={`
+                  text-left text-xs uppercase tracking-wider border-b
+                  ${isDark 
+                    ? 'text-stone-400 border-stone-700' 
+                    : 'text-stone-500 border-stone-100'
+                  }
+                `}>
                   <th className="pb-3 font-semibold">Product</th>
                   <th className="pb-3 font-semibold">Price</th>
                   <th className="pb-3 font-semibold">Stock</th>
                   <th className="pb-3 font-semibold">Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-stone-100">
+              <tbody className={`divide-y ${isDark ? 'divide-stone-700' : 'divide-stone-100'}`}>
                 {recentProducts.map((product) => (
-                  <tr key={product.id} className="hover:bg-stone-50 transition-colors">
+                  <tr 
+                    key={product.id} 
+                    className={`transition-colors ${isDark ? 'hover:bg-stone-700/50' : 'hover:bg-stone-50'}`}
+                  >
                     <td className="py-3">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-lg bg-stone-200 flex items-center justify-center">
-                          <Icon name="smartphone" size={14} className="text-stone-500" />
+                        <div className={`
+                          w-8 h-8 rounded-lg flex items-center justify-center
+                          ${isDark ? 'bg-stone-700' : 'bg-stone-200'}
+                        `}>
+                          <Icon name="smartphone" size={14} className={isDark ? 'text-stone-400' : 'text-stone-500'} />
                         </div>
-                        <span className="font-medium text-stone-900 truncate max-w-[200px]">
+                        <span className={`font-medium truncate max-w-[200px] ${isDark ? 'text-white' : 'text-stone-900'}`}>
                           {product.name}
                         </span>
                       </div>
                     </td>
-                    <td className="py-3 text-stone-600">
+                    <td className={`py-3 ${isDark ? 'text-stone-300' : 'text-stone-600'}`}>
                       Rs. {product.price.toLocaleString()}
                     </td>
                     <td className="py-3">
                       {product.stockQuantity !== null ? (
                         <span className={`font-medium ${
-                          product.stockQuantity === 0 ? 'text-red-600' :
-                          product.stockQuantity <= 5 ? 'text-amber-600' : 'text-stone-700'
+                          product.stockQuantity === 0 
+                            ? isDark ? 'text-red-400' : 'text-red-600'
+                            : product.stockQuantity <= 5 
+                              ? isDark ? 'text-amber-400' : 'text-amber-600'
+                              : isDark ? 'text-stone-300' : 'text-stone-700'
                         }`}>
                           {product.stockQuantity}
                         </span>
                       ) : (
-                        <span className="text-stone-400">—</span>
+                        <span className={isDark ? 'text-stone-500' : 'text-stone-400'}>—</span>
                       )}
                     </td>
                     <td className="py-3">
@@ -315,8 +441,12 @@ export default function AdminDashboard() {
                         {getStockBadge(product)}
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           product.published 
-                            ? 'bg-emerald-100 text-emerald-700' 
-                            : 'bg-stone-100 text-stone-500'
+                            ? isDark 
+                              ? 'bg-emerald-500/20 text-emerald-400' 
+                              : 'bg-emerald-100 text-emerald-700'
+                            : isDark 
+                              ? 'bg-stone-700 text-stone-400' 
+                              : 'bg-stone-100 text-stone-500'
                         }`}>
                           {product.published ? 'Published' : 'Draft'}
                         </span>

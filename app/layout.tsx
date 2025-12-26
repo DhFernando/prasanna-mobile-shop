@@ -5,6 +5,8 @@
 
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, Sora } from "next/font/google";
+import { ThemeProvider } from "@/lib/theme";
+import { SiteSettingsProvider } from "@/lib/site-settings-context";
 import "./globals.css";
 
 // Primary font - Body text (DM Sans - clean, modern, highly readable)
@@ -171,7 +173,11 @@ export default function RootLayout({
       <body
         className={`${dmSans.variable} ${sora.variable} font-sans antialiased`}
       >
-        {children}
+        <ThemeProvider>
+          <SiteSettingsProvider>
+            {children}
+          </SiteSettingsProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

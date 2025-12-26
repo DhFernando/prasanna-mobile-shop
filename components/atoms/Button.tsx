@@ -1,10 +1,13 @@
 /**
  * Button Atom Component
  * Reusable button with multiple variants for consistent UI
- * Updated with teal/coral color palette
+ * Supports dynamic theme colors
  */
 
+'use client';
+
 import React from 'react';
+import { useTheme } from '@/lib/theme';
 
 interface ButtonProps {
   children: React.ReactNode;
@@ -33,6 +36,8 @@ const Button: React.FC<ButtonProps> = ({
   ariaLabel,
   external = false,
 }) => {
+  const { isDark, currentTheme } = useTheme();
+  
   // Base styles
   const baseStyles = `
     inline-flex items-center justify-center gap-2.5 
@@ -43,15 +48,12 @@ const Button: React.FC<ButtonProps> = ({
     active:scale-[0.98]
   `;
 
-  // Variant styles - Updated color palette
+  // Variant styles - Dynamic for primary and outline, static for others
   const variants = {
     primary: `
-      bg-gradient-to-r from-teal-600 to-teal-500 
       text-white 
-      hover:from-teal-500 hover:to-teal-400
-      focus:ring-teal-500
-      shadow-lg shadow-teal-600/25
-      hover:shadow-xl hover:shadow-teal-500/30
+      shadow-lg
+      hover:shadow-xl
       hover:-translate-y-0.5
     `,
     secondary: `
@@ -64,16 +66,18 @@ const Button: React.FC<ButtonProps> = ({
       hover:-translate-y-0.5
     `,
     outline: `
-      border-2 border-teal-600 
-      text-teal-700 
-      hover:bg-teal-50
-      focus:ring-teal-500
-      bg-white/90 backdrop-blur-sm
-      hover:border-teal-500
+      border-2
+      backdrop-blur-sm
+      ${isDark 
+        ? 'bg-stone-800/50 text-stone-200 border-stone-600 hover:bg-stone-700 hover:text-white' 
+        : 'bg-white/90 hover:bg-stone-50'
+      }
     `,
     ghost: `
-      text-stone-600 
-      hover:bg-stone-100 hover:text-stone-900
+      ${isDark 
+        ? 'text-stone-300 hover:bg-stone-700 hover:text-white' 
+        : 'text-stone-600 hover:bg-stone-100 hover:text-stone-900'
+      }
       focus:ring-stone-400
     `,
     cta: `
@@ -102,6 +106,16 @@ const Button: React.FC<ButtonProps> = ({
     ${className}
   `.trim().replace(/\s+/g, ' ');
 
+  // Dynamic styles for primary and outline variants
+  const dynamicStyles: React.CSSProperties = {};
+  if (variant === 'primary') {
+    dynamicStyles.background = `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`;
+    dynamicStyles.boxShadow = `0 4px 14px ${currentTheme.primaryHex}40`;
+  } else if (variant === 'outline' && !isDark) {
+    dynamicStyles.borderColor = currentTheme.primaryHex;
+    dynamicStyles.color = currentTheme.primaryHex;
+  }
+
   const content = (
     <>
       {icon && iconPosition === 'left' && <span className="flex-shrink-0">{icon}</span>}
@@ -116,6 +130,7 @@ const Button: React.FC<ButtonProps> = ({
       <a
         href={href}
         className={combinedStyles}
+        style={dynamicStyles}
         aria-label={ariaLabel}
         target={external ? '_blank' : undefined}
         rel={external ? 'noopener noreferrer' : undefined}
@@ -129,6 +144,7 @@ const Button: React.FC<ButtonProps> = ({
     <button
       onClick={onClick}
       className={combinedStyles}
+      style={dynamicStyles}
       aria-label={ariaLabel}
       type="button"
     >

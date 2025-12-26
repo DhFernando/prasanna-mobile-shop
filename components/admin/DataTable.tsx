@@ -1,12 +1,14 @@
 /**
  * DataTable Component
  * Reusable table for displaying data with actions
+ * Supports dark/light mode
  */
 
 'use client';
 
 import React from 'react';
 import { Icon } from '@/components/atoms';
+import { useTheme } from '@/lib/theme';
 
 interface Column<T> {
   key: keyof T | string;
@@ -36,44 +38,52 @@ function DataTable<T>({
   emptyMessage = 'No items found',
   getRowId,
 }: DataTableProps<T>) {
+  const { isDark, currentTheme } = useTheme();
+  
   if (isLoading) {
     return (
-      <div className="
-        bg-white rounded-xl border border-stone-200
-        p-12 text-center
-      ">
-        <div className="w-8 h-8 border-2 border-teal-500/30 border-t-teal-500 rounded-full animate-spin mx-auto mb-3" />
-        <p className="text-stone-500">Loading...</p>
+      <div className={`rounded-xl border p-12 text-center ${
+        isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'
+      }`}>
+        <div 
+          className="w-8 h-8 border-3 rounded-full animate-spin mx-auto mb-3"
+          style={{ borderColor: `${currentTheme.primaryHex}30`, borderTopColor: currentTheme.primaryHex }}
+        />
+        <p className={isDark ? 'text-stone-400' : 'text-stone-500'}>Loading...</p>
       </div>
     );
   }
 
   if (data.length === 0) {
     return (
-      <div className="
-        bg-white rounded-xl border border-stone-200
-        p-12 text-center
-      ">
-        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
-          <Icon name="smartphone" size={28} className="text-stone-400" />
+      <div className={`rounded-xl border p-12 text-center ${
+        isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'
+      }`}>
+        <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
+          isDark ? 'bg-stone-700' : 'bg-stone-100'
+        }`}>
+          <Icon name="smartphone" size={28} className={isDark ? 'text-stone-500' : 'text-stone-400'} />
         </div>
-        <p className="text-stone-500">{emptyMessage}</p>
+        <p className={isDark ? 'text-stone-400' : 'text-stone-500'}>{emptyMessage}</p>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-xl border border-stone-200 overflow-hidden">
+    <div className={`rounded-xl border overflow-hidden ${
+      isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-white border-stone-200'
+    }`}>
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-stone-50 border-b border-stone-200">
+            <tr className={`border-b ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
               {columns.map((col) => (
                 <th
                   key={String(col.key)}
                   className={`
                     px-4 py-3.5 text-left
-                    text-xs font-semibold text-stone-500 uppercase tracking-wider
+                    text-xs font-semibold uppercase tracking-wider
+                    ${isDark ? 'text-stone-400' : 'text-stone-500'}
                     ${col.className || ''}
                   `}
                 >
@@ -81,22 +91,24 @@ function DataTable<T>({
                 </th>
               ))}
               {(onEdit || onDelete || onTogglePublish) && (
-                <th className="px-4 py-3.5 text-right text-xs font-semibold text-stone-500 uppercase tracking-wider">
+                <th className={`px-4 py-3.5 text-right text-xs font-semibold uppercase tracking-wider ${
+                  isDark ? 'text-stone-400' : 'text-stone-500'
+                }`}>
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-stone-100">
+          <tbody className={`divide-y ${isDark ? 'divide-stone-700' : 'divide-stone-100'}`}>
             {data.map((item) => (
               <tr
                 key={getRowId(item)}
-                className="hover:bg-stone-50/50 transition-colors"
+                className={`transition-colors ${isDark ? 'hover:bg-stone-700/50' : 'hover:bg-stone-50/50'}`}
               >
                 {columns.map((col) => (
                   <td
                     key={`${getRowId(item)}-${String(col.key)}`}
-                    className={`px-4 py-4 text-sm text-stone-700 ${col.className || ''}`}
+                    className={`px-4 py-4 text-sm ${isDark ? 'text-stone-300' : 'text-stone-700'} ${col.className || ''}`}
                   >
                     {col.render 
                       ? col.render(item) 
@@ -110,12 +122,11 @@ function DataTable<T>({
                       {onTogglePublish && (
                         <button
                           onClick={() => onTogglePublish(item)}
-                          className="
-                            p-2 rounded-lg
-                            text-stone-400 hover:text-amber-600
-                            hover:bg-amber-50
-                            transition-colors
-                          "
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDark 
+                              ? 'text-stone-500 hover:text-amber-400 hover:bg-amber-500/10' 
+                              : 'text-stone-400 hover:text-amber-600 hover:bg-amber-50'
+                          }`}
                           title="Toggle publish status"
                         >
                           <Icon name="check" size={18} />
@@ -124,12 +135,11 @@ function DataTable<T>({
                       {onEdit && (
                         <button
                           onClick={() => onEdit(item)}
-                          className="
-                            p-2 rounded-lg
-                            text-stone-400 hover:text-teal-600
-                            hover:bg-teal-50
-                            transition-colors
-                          "
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDark 
+                              ? 'text-stone-500 hover:text-blue-400 hover:bg-blue-500/10' 
+                              : 'text-stone-400 hover:text-teal-600 hover:bg-teal-50'
+                          }`}
                           title="Edit"
                         >
                           <Icon name="tools" size={18} />
@@ -138,12 +148,11 @@ function DataTable<T>({
                       {onDelete && (
                         <button
                           onClick={() => onDelete(item)}
-                          className="
-                            p-2 rounded-lg
-                            text-stone-400 hover:text-red-600
-                            hover:bg-red-50
-                            transition-colors
-                          "
+                          className={`p-2 rounded-lg transition-colors ${
+                            isDark 
+                              ? 'text-stone-500 hover:text-red-400 hover:bg-red-500/10' 
+                              : 'text-stone-400 hover:text-red-600 hover:bg-red-50'
+                          }`}
                           title="Delete"
                         >
                           <Icon name="close" size={18} />
@@ -162,4 +171,5 @@ function DataTable<T>({
 }
 
 export default DataTable;
+
 

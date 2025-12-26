@@ -2,13 +2,19 @@
  * Reviews Organism
  * Customer reviews and Google rating section
  * Premium design with prominent Google rating display
+ * Supports dark/light mode
  */
+
+'use client';
 
 import React from 'react';
 import { SectionHeading, BodyText, Subtitle, Button, Icon } from '../atoms';
 import { ReviewCard } from '../molecules';
+import { useTheme } from '@/lib/theme';
 
 const Reviews: React.FC = () => {
+  const { isDark, currentTheme } = useTheme();
+  
   const reviews = [
     {
       name: 'Happy Customer',
@@ -27,15 +33,22 @@ const Reviews: React.FC = () => {
   return (
     <section 
       id="reviews"
-      className="py-24 sm:py-32 relative overflow-hidden"
+      className={`py-24 sm:py-32 relative overflow-hidden ${isDark ? 'bg-stone-800' : ''}`}
     >
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-b from-white via-stone-50/50 to-white" />
-        <div className="absolute inset-0 section-pattern opacity-30" />
+        <div className={`absolute inset-0 ${
+          isDark 
+            ? 'bg-gradient-to-b from-stone-800 via-stone-800 to-stone-900' 
+            : 'bg-gradient-to-b from-white via-stone-50/50 to-white'
+        }`} />
+        <div className={`absolute inset-0 section-pattern ${isDark ? 'opacity-10' : 'opacity-30'}`} />
         {/* Decorative elements */}
-        <div className="absolute top-1/4 left-[5%] w-64 h-64 bg-amber-100/30 rounded-full blur-3xl" />
-        <div className="absolute bottom-1/4 right-[5%] w-80 h-80 bg-teal-100/20 rounded-full blur-3xl" />
+        <div className={`absolute top-1/4 left-[5%] w-64 h-64 rounded-full blur-3xl ${isDark ? 'bg-amber-500/10' : 'bg-amber-100/30'}`} />
+        <div 
+          className="absolute bottom-1/4 right-[5%] w-80 h-80 rounded-full blur-3xl"
+          style={{ background: `${currentTheme.primaryHex}15` }}
+        />
       </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,15 +56,20 @@ const Reviews: React.FC = () => {
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto mb-16">
             <div className="animate-fade-in-up">
-              <Subtitle className="mb-4">Customer Reviews</Subtitle>
+              <Subtitle className={`mb-4 ${isDark ? 'text-stone-400' : ''}`}>Customer Reviews</Subtitle>
             </div>
             <div className="animate-fade-in-up animation-delay-100">
-              <SectionHeading className="mb-6">
-                What Our <span className="gradient-text">Customers</span> Say
-              </SectionHeading>
+              <h2 className={`font-display font-bold text-3xl sm:text-4xl mb-6 ${isDark ? 'text-white' : 'text-stone-900'}`}>
+                What Our <span 
+                  className="bg-clip-text text-transparent"
+                  style={{ 
+                    backgroundImage: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryLight})`
+                  }}
+                >Customers</span> Say
+              </h2>
             </div>
             <div className="animate-fade-in-up animation-delay-200">
-              <BodyText size="lg" className="text-stone-600">
+              <BodyText size="lg" className={isDark ? 'text-stone-400' : 'text-stone-600'}>
                 We&apos;re proud to have earned the trust of our community with 
                 consistent quality and service.
               </BodyText>
@@ -64,32 +82,38 @@ const Reviews: React.FC = () => {
               href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
               target="_blank"
               rel="noopener noreferrer"
-              className="
+              className={`
                 group
                 relative
-                bg-gradient-to-br from-white to-amber-50/50
                 rounded-3xl
                 p-8 sm:p-10
-                border border-amber-200/60
-                shadow-xl shadow-amber-100/50
-                hover:shadow-2xl hover:shadow-amber-200/60
-                hover:border-amber-300
+                border
+                shadow-xl
+                hover:shadow-2xl
                 transition-all duration-500
                 text-center
                 max-w-md w-full
-              "
+                ${isDark 
+                  ? 'bg-gradient-to-br from-stone-700 to-stone-800 border-amber-500/30 shadow-stone-900/50 hover:border-amber-500/50' 
+                  : 'bg-gradient-to-br from-white to-amber-50/50 border-amber-200/60 shadow-amber-100/50 hover:shadow-amber-200/60 hover:border-amber-300'
+                }
+              `}
             >
               {/* Google badge */}
-              <div className="
+              <div className={`
                 absolute -top-4 left-1/2 -translate-x-1/2
-                bg-white rounded-full
+                rounded-full
                 px-4 py-2
                 shadow-lg
-                border border-stone-100
+                border
                 flex items-center gap-2
-              ">
+                ${isDark 
+                  ? 'bg-stone-800 border-stone-700' 
+                  : 'bg-white border-stone-100'
+                }
+              `}>
                 <Icon name="google" size={20} />
-                <span className="text-sm font-semibold text-stone-700">Google Reviews</span>
+                <span className={`text-sm font-semibold ${isDark ? 'text-stone-300' : 'text-stone-700'}`}>Google Reviews</span>
               </div>
               
               {/* Stars */}
@@ -106,20 +130,24 @@ const Reviews: React.FC = () => {
               </div>
               
               {/* Rating */}
-              <div className="font-display font-bold text-6xl sm:text-7xl text-stone-900 mb-2">
+              <div className={`font-display font-bold text-6xl sm:text-7xl mb-2 ${isDark ? 'text-white' : 'text-stone-900'}`}>
                 5.0
               </div>
-              <div className="text-lg text-stone-600 font-medium mb-1">Perfect Rating</div>
-              <div className="text-sm text-stone-400">Based on customer reviews</div>
+              <div className={`text-lg font-medium mb-1 ${isDark ? 'text-stone-300' : 'text-stone-600'}`}>Perfect Rating</div>
+              <div className={`text-sm ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>Based on customer reviews</div>
               
               {/* Hover indicator */}
-              <div className="
-                mt-6 pt-6 border-t border-amber-200/50
-                flex items-center justify-center gap-2
-                text-teal-600 font-medium
-                group-hover:gap-3
-                transition-all duration-300
-              ">
+              <div 
+                className={`
+                  mt-6 pt-6 border-t
+                  flex items-center justify-center gap-2
+                  font-medium
+                  group-hover:gap-3
+                  transition-all duration-300
+                  ${isDark ? 'border-stone-600' : 'border-amber-200/50'}
+                `}
+                style={{ color: currentTheme.primaryHex }}
+              >
                 <span>Leave a review</span>
                 <Icon 
                   name="arrow-right" 
@@ -146,26 +174,33 @@ const Reviews: React.FC = () => {
 
           {/* CTA to leave review */}
           <div className="text-center animate-fade-in-up">
-            <div className="
+            <div className={`
               inline-flex flex-col sm:flex-row items-center gap-4
               p-6 sm:p-8
-              bg-white/80 backdrop-blur-sm
+              backdrop-blur-sm
               rounded-2xl
-              border border-stone-200
-              shadow-lg shadow-stone-100/50
-            ">
-              <div className="
+              border
+              shadow-lg
+              ${isDark 
+                ? 'bg-stone-800/80 border-stone-700 shadow-stone-900/50' 
+                : 'bg-white/80 border-stone-200 shadow-stone-100/50'
+              }
+            `}>
+              <div className={`
                 w-14 h-14 rounded-2xl
-                bg-gradient-to-br from-amber-100 to-amber-50
                 flex items-center justify-center
                 shadow-sm
-              ">
-                <Icon name="sparkles" size={28} className="text-amber-600" />
+                ${isDark 
+                  ? 'bg-gradient-to-br from-amber-500/20 to-amber-600/10' 
+                  : 'bg-gradient-to-br from-amber-100 to-amber-50'
+                }
+              `}>
+                <Icon name="sparkles" size={28} className="text-amber-500" />
               </div>
               
               <div className="text-center sm:text-left">
-                <p className="font-semibold text-stone-800 mb-1">Had a great experience?</p>
-                <p className="text-sm text-stone-500">We&apos;d love to hear from you!</p>
+                <p className={`font-semibold mb-1 ${isDark ? 'text-white' : 'text-stone-800'}`}>Had a great experience?</p>
+                <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>We&apos;d love to hear from you!</p>
               </div>
               
               <Button

@@ -2,6 +2,7 @@
  * GlobalSearch Component
  * Google-style search with instant autocomplete suggestions
  * Shows products, categories, and quick actions as you type
+ * Supports dark/light mode
  */
 
 'use client';
@@ -10,6 +11,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Icon } from '@/components/atoms';
+import { useTheme } from '@/lib/theme';
 
 interface Product {
   id: string;
@@ -44,6 +46,7 @@ interface GlobalSearchProps {
 }
 
 const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
+  const { isDark, currentTheme } = useTheme();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -277,27 +280,31 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
     <div className="fixed inset-0 z-[100] flex items-start justify-center pt-20 sm:pt-24 px-4">
       {/* Backdrop */}
       <div 
-        className="absolute inset-0 bg-stone-900/40 backdrop-blur-sm"
+        className={`absolute inset-0 backdrop-blur-sm ${isDark ? 'bg-black/60' : 'bg-stone-900/40'}`}
         onClick={onClose}
       />
 
       {/* Search Container */}
       <div 
         ref={containerRef}
-        className="
+        className={`
           relative w-full max-w-2xl
-          bg-white rounded-2xl
-          shadow-2xl shadow-stone-900/20
+          rounded-2xl
+          shadow-2xl
           overflow-hidden
           animate-fade-in-up
-        "
+          ${isDark 
+            ? 'bg-stone-800 shadow-stone-900/50' 
+            : 'bg-white shadow-stone-900/20'
+          }
+        `}
       >
         {/* Search Input */}
-        <div className="relative border-b border-stone-200">
+        <div className={`relative border-b ${isDark ? 'border-stone-700' : 'border-stone-200'}`}>
           <Icon 
             name="search" 
             size={22} 
-            className="absolute left-5 top-1/2 -translate-y-1/2 text-stone-400" 
+            className={`absolute left-5 top-1/2 -translate-y-1/2 ${isDark ? 'text-stone-500' : 'text-stone-400'}`}
           />
           <input
             ref={inputRef}
@@ -306,17 +313,22 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={handleKeyDown}
-            className="
+            className={`
               w-full pl-14 pr-12 py-5
-              text-lg text-stone-800
-              placeholder:text-stone-400
+              text-lg
               focus:outline-none
-            "
+              ${isDark 
+                ? 'bg-stone-800 text-white placeholder:text-stone-500' 
+                : 'text-stone-800 placeholder:text-stone-400'
+              }
+            `}
           />
           {query && (
             <button
               onClick={() => setQuery('')}
-              className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 transition-colors"
+              className={`absolute right-5 top-1/2 -translate-y-1/2 transition-colors ${
+                isDark ? 'text-stone-500 hover:text-stone-300' : 'text-stone-400 hover:text-stone-600'
+              }`}
             >
               <Icon name="close" size={20} />
             </button>
@@ -327,7 +339,10 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
         <div className="max-h-[60vh] overflow-y-auto">
           {isLoading ? (
             <div className="p-6 text-center">
-              <div className="w-6 h-6 border-2 border-teal-500 border-t-transparent rounded-full animate-spin mx-auto" />
+              <div 
+                className="w-6 h-6 border-2 border-t-transparent rounded-full animate-spin mx-auto"
+                style={{ borderColor: currentTheme.primaryHex, borderTopColor: 'transparent' }}
+              />
             </div>
           ) : query && results.length > 0 ? (
             // Search Results
@@ -340,7 +355,10 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                     w-full flex items-start gap-4 px-5 py-3.5
                     text-left
                     transition-colors
-                    ${selectedIndex === index ? 'bg-teal-50' : 'hover:bg-stone-50'}
+                    ${selectedIndex === index 
+                      ? isDark ? 'bg-stone-700' : 'bg-teal-50' 
+                      : isDark ? 'hover:bg-stone-700' : 'hover:bg-stone-50'
+                    }
                   `}
                 >
                   {/* Icon */}
@@ -348,10 +366,10 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                     flex-shrink-0 w-10 h-10 rounded-xl
                     flex items-center justify-center
                     ${result.type === 'product' 
-                      ? 'bg-teal-100 text-teal-600' 
+                      ? isDark ? 'bg-teal-500/20 text-teal-400' : 'bg-teal-100 text-teal-600'
                       : result.type === 'category'
-                        ? 'bg-purple-100 text-purple-600'
-                        : 'bg-stone-100 text-stone-500'
+                        ? isDark ? 'bg-purple-500/20 text-purple-400' : 'bg-purple-100 text-purple-600'
+                        : isDark ? 'bg-stone-700 text-stone-400' : 'bg-stone-100 text-stone-500'
                     }
                   `}>
                     <Icon 
@@ -363,27 +381,30 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                   {/* Content */}
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-stone-800 truncate">
+                      <span className={`font-medium truncate ${isDark ? 'text-white' : 'text-stone-800'}`}>
                         {result.title}
                       </span>
                       {result.type === 'product' && result.price && (
-                        <span className="flex-shrink-0 text-sm font-semibold text-teal-600">
+                        <span 
+                          className="flex-shrink-0 text-sm font-semibold"
+                          style={{ color: currentTheme.primaryHex }}
+                        >
                           {formatPrice(result.price)}
                         </span>
                       )}
                     </div>
                     {result.subtitle && (
-                      <p className="text-sm text-stone-500 truncate mt-0.5">
+                      <p className={`text-sm truncate mt-0.5 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
                         {result.subtitle}
                       </p>
                     )}
                     {result.type === 'product' && result.categoryName && (
-                      <span className="
+                      <span className={`
                         inline-block mt-1.5 px-2 py-0.5
                         text-xs font-medium
-                        bg-stone-100 text-stone-600
                         rounded-full
-                      ">
+                        ${isDark ? 'bg-stone-700 text-stone-300' : 'bg-stone-100 text-stone-600'}
+                      `}>
                         {result.categoryName}
                       </span>
                     )}
@@ -393,7 +414,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                   <Icon 
                     name="arrow-right" 
                     size={16} 
-                    className="flex-shrink-0 text-stone-400 mt-3" 
+                    className={`flex-shrink-0 mt-3 ${isDark ? 'text-stone-500' : 'text-stone-400'}`}
                   />
                 </button>
               ))}
@@ -401,22 +422,22 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
           ) : query && results.length === 0 ? (
             // No results
             <div className="p-8 text-center">
-              <div className="w-14 h-14 mx-auto mb-4 rounded-full bg-stone-100 flex items-center justify-center">
-                <Icon name="search" size={24} className="text-stone-400" />
+              <div className={`w-14 h-14 mx-auto mb-4 rounded-full flex items-center justify-center ${isDark ? 'bg-stone-700' : 'bg-stone-100'}`}>
+                <Icon name="search" size={24} className={isDark ? 'text-stone-500' : 'text-stone-400'} />
               </div>
-              <p className="text-stone-600 font-medium mb-1">No results found</p>
-              <p className="text-sm text-stone-500 mb-4">Try different keywords or browse categories</p>
+              <p className={`font-medium mb-1 ${isDark ? 'text-white' : 'text-stone-600'}`}>No results found</p>
+              <p className={`text-sm mb-4 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Try different keywords or browse categories</p>
               <Link
                 href="/shop"
                 onClick={onClose}
                 className="
                   inline-flex items-center gap-2
                   px-4 py-2
-                  bg-teal-600 hover:bg-teal-700
                   text-white text-sm font-medium
                   rounded-lg
                   transition-colors
                 "
+                style={{ backgroundColor: currentTheme.primaryHex }}
               >
                 Browse All Products
                 <Icon name="arrow-right" size={16} />
@@ -429,12 +450,12 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
               {recentSearches.length > 0 && (
                 <div className="mb-4">
                   <div className="flex items-center justify-between px-5 py-2">
-                    <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                    <span className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
                       Recent Searches
                     </span>
                     <button
                       onClick={clearRecentSearches}
-                      className="text-xs text-stone-400 hover:text-stone-600 transition-colors"
+                      className={`text-xs transition-colors ${isDark ? 'text-stone-500 hover:text-stone-300' : 'text-stone-400 hover:text-stone-600'}`}
                     >
                       Clear
                     </button>
@@ -447,11 +468,14 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                         w-full flex items-center gap-3 px-5 py-2.5
                         text-left
                         transition-colors
-                        ${selectedIndex === index ? 'bg-teal-50' : 'hover:bg-stone-50'}
+                        ${selectedIndex === index 
+                          ? isDark ? 'bg-stone-700' : 'bg-teal-50' 
+                          : isDark ? 'hover:bg-stone-700' : 'hover:bg-stone-50'
+                        }
                       `}
                     >
-                      <Icon name="clock" size={16} className="text-stone-400" />
-                      <span className="text-stone-700">{search}</span>
+                      <Icon name="clock" size={16} className={isDark ? 'text-stone-500' : 'text-stone-400'} />
+                      <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>{search}</span>
                     </button>
                   ))}
                 </div>
@@ -460,7 +484,7 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
               {/* Popular Searches */}
               <div>
                 <div className="px-5 py-2">
-                  <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
                     Popular Searches
                   </span>
                 </div>
@@ -469,13 +493,16 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                     <button
                       key={`popular-${index}`}
                       onClick={() => handleSuggestionClick(search)}
-                      className="
+                      className={`
                         px-3 py-1.5
-                        text-sm text-stone-600
-                        bg-stone-100 hover:bg-teal-100 hover:text-teal-700
+                        text-sm
                         rounded-full
                         transition-colors
-                      "
+                        ${isDark 
+                          ? 'text-stone-300 bg-stone-700 hover:bg-stone-600' 
+                          : 'text-stone-600 bg-stone-100 hover:bg-teal-100 hover:text-teal-700'
+                        }
+                      `}
                     >
                       {search}
                     </button>
@@ -484,9 +511,9 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
               </div>
 
               {/* Browse Categories */}
-              <div className="mt-4 border-t border-stone-100">
+              <div className={`mt-4 border-t ${isDark ? 'border-stone-700' : 'border-stone-100'}`}>
                 <div className="px-5 py-3">
-                  <span className="text-xs font-semibold text-stone-400 uppercase tracking-wider">
+                  <span className={`text-xs font-semibold uppercase tracking-wider ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
                     Browse Categories
                   </span>
                 </div>
@@ -496,15 +523,18 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
                       key={category.id}
                       href={`/shop?category=${category.id}`}
                       onClick={onClose}
-                      className="
+                      className={`
                         flex items-center gap-2 px-3 py-2.5
-                        text-sm text-stone-600
-                        bg-stone-50 hover:bg-teal-50 hover:text-teal-700
+                        text-sm
                         rounded-xl
                         transition-colors
-                      "
+                        ${isDark 
+                          ? 'text-stone-300 bg-stone-700 hover:bg-stone-600' 
+                          : 'text-stone-600 bg-stone-50 hover:bg-teal-50 hover:text-teal-700'
+                        }
+                      `}
                     >
-                      <Icon name="tag" size={14} className="text-stone-400" />
+                      <Icon name="tag" size={14} className={isDark ? 'text-stone-500' : 'text-stone-400'} />
                       <span className="truncate">{category.name}</span>
                     </Link>
                   ))}
@@ -515,26 +545,39 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-stone-200 px-5 py-3 bg-stone-50 flex items-center justify-between text-xs text-stone-500">
+        <div className={`border-t px-5 py-3 flex items-center justify-between text-xs ${
+          isDark 
+            ? 'border-stone-700 bg-stone-900 text-stone-500' 
+            : 'border-stone-200 bg-stone-50 text-stone-500'
+        }`}>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 bg-white border border-stone-300 rounded text-[10px] font-mono">↑</kbd>
-              <kbd className="px-1.5 py-0.5 bg-white border border-stone-300 rounded text-[10px] font-mono">↓</kbd>
+              <kbd className={`px-1.5 py-0.5 border rounded text-[10px] font-mono ${
+                isDark ? 'bg-stone-700 border-stone-600' : 'bg-white border-stone-300'
+              }`}>↑</kbd>
+              <kbd className={`px-1.5 py-0.5 border rounded text-[10px] font-mono ${
+                isDark ? 'bg-stone-700 border-stone-600' : 'bg-white border-stone-300'
+              }`}>↓</kbd>
               <span className="ml-1">Navigate</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 bg-white border border-stone-300 rounded text-[10px] font-mono">Enter</kbd>
+              <kbd className={`px-1.5 py-0.5 border rounded text-[10px] font-mono ${
+                isDark ? 'bg-stone-700 border-stone-600' : 'bg-white border-stone-300'
+              }`}>Enter</kbd>
               <span className="ml-1">Select</span>
             </span>
             <span className="flex items-center gap-1.5">
-              <kbd className="px-1.5 py-0.5 bg-white border border-stone-300 rounded text-[10px] font-mono">Esc</kbd>
+              <kbd className={`px-1.5 py-0.5 border rounded text-[10px] font-mono ${
+                isDark ? 'bg-stone-700 border-stone-600' : 'bg-white border-stone-300'
+              }`}>Esc</kbd>
               <span className="ml-1">Close</span>
             </span>
           </div>
           <Link
             href="/shop"
             onClick={onClose}
-            className="text-teal-600 hover:text-teal-700 font-medium transition-colors"
+            className="font-medium transition-colors"
+            style={{ color: currentTheme.primaryHex }}
           >
             View All Products →
           </Link>
@@ -545,4 +588,5 @@ const GlobalSearch: React.FC<GlobalSearchProps> = ({ isOpen, onClose }) => {
 };
 
 export default GlobalSearch;
+
 

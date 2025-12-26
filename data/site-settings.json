@@ -1,0 +1,34 @@
+{
+  "siteName": "Prasanna Mobile Shop",
+  "tagline": "Your Trusted Mobile Store in Ja-Ela",
+  "description": "Quality mobile accessories, chargers, covers, and expert repairs. Visit us today for genuine products at affordable prices.",
+  "contact": {
+    "phone": "072 290 2299",
+    "phoneInternational": "+94722902299",
+    "whatsapp": "+94722902299",
+    "email": ""
+  },
+  "address": {
+    "line1": "No 16, Old Negombo Rd",
+    "line2": "Gampaha, Sri Lanka",
+    "googleMapsUrl": "https://maps.app.goo.gl/X4Exp5vf855PqcfZ7",
+    "googleMapsEmbed": "https://maps.google.com/maps?q=No%2016%2C%20Old%20Negombo%20Rd%20Ja-Ela%2C%20Sri%20Lanka&output=embed"
+  },
+  "businessHours": {
+    "openDays": "Daily",
+    "openTime": "",
+    "closeTime": "9:30 PM",
+    "displayText": "Open Daily till 9:30 PM"
+  },
+  "social": {
+    "facebook": "https://www.facebook.com/galaxymblstore/",
+    "instagram": "",
+    "tiktok": "",
+    "youtube": ""
+  },
+  "googleRating": {
+    "rating": "5.0",
+    "reviewsCount": ""
+  },
+  "updatedAt": "2025-12-26T07:01:41.959Z"
+}

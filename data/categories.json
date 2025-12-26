@@ -3,39 +3,170 @@
     {
       "id": "phone-covers",
       "name": "Phone Covers",
+      "slug": "phone-covers",
       "description": "Protective cases and covers for all phone models",
-      "createdAt": "2024-12-20T10:00:00Z"
+      "parentId": null,
+      "level": 0,
+      "path": ["phone-covers"],
+      "image": "",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "iphone-covers",
+      "name": "iPhone Covers",
+      "slug": "iphone-covers",
+      "description": "Covers for all iPhone models",
+      "parentId": "phone-covers",
+      "level": 1,
+      "path": ["phone-covers", "iphone-covers"],
+      "image": "",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "samsung-covers",
+      "name": "Samsung Covers",
+      "slug": "samsung-covers",
+      "description": "Covers for all Samsung models",
+      "parentId": "phone-covers",
+      "level": 1,
+      "path": ["phone-covers", "samsung-covers"],
+      "image": "",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
     },
     {
       "id": "chargers-cables",
       "name": "Chargers & Cables",
+      "slug": "chargers-cables",
       "description": "Fast chargers, cables, and power adapters",
-      "createdAt": "2024-12-20T10:00:00Z"
+      "parentId": null,
+      "level": 0,
+      "path": ["chargers-cables"],
+      "image": "",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "fast-chargers",
+      "name": "Fast Chargers",
+      "slug": "fast-chargers",
+      "description": "Quick charge adapters and chargers",
+      "parentId": "chargers-cables",
+      "level": 1,
+      "path": ["chargers-cables", "fast-chargers"],
+      "image": "",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "cables",
+      "name": "Cables",
+      "slug": "cables",
+      "description": "USB cables, lightning cables, and more",
+      "parentId": "chargers-cables",
+      "level": 1,
+      "path": ["chargers-cables", "cables"],
+      "image": "",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
     },
     {
       "id": "screen-protectors",
       "name": "Screen Protectors",
+      "slug": "screen-protectors",
       "description": "Tempered glass and film protectors",
-      "createdAt": "2024-12-20T10:00:00Z"
+      "parentId": null,
+      "level": 0,
+      "path": ["screen-protectors"],
+      "image": "",
+      "isActive": true,
+      "order": 3,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
     },
     {
       "id": "audio",
       "name": "Audio Accessories",
+      "slug": "audio",
       "description": "Earphones, earbuds, speakers, and audio adapters",
-      "createdAt": "2024-12-20T10:00:00Z"
+      "parentId": null,
+      "level": 0,
+      "path": ["audio"],
+      "image": "",
+      "isActive": true,
+      "order": 4,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "earphones",
+      "name": "Earphones",
+      "slug": "earphones",
+      "description": "Wired and wireless earphones",
+      "parentId": "audio",
+      "level": 1,
+      "path": ["audio", "earphones"],
+      "image": "",
+      "isActive": true,
+      "order": 1,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
+    },
+    {
+      "id": "speakers",
+      "name": "Speakers",
+      "slug": "speakers",
+      "description": "Bluetooth and portable speakers",
+      "parentId": "audio",
+      "level": 1,
+      "path": ["audio", "speakers"],
+      "image": "",
+      "isActive": true,
+      "order": 2,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
     },
     {
       "id": "power-banks",
       "name": "Power Banks",
+      "slug": "power-banks",
       "description": "Portable chargers and power banks",
-      "createdAt": "2024-12-20T10:00:00Z"
+      "parentId": null,
+      "level": 0,
+      "path": ["power-banks"],
+      "image": "",
+      "isActive": true,
+      "order": 5,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
     },
     {
       "id": "accessories",
       "name": "Other Accessories",
+      "slug": "accessories",
       "description": "Phone holders, stands, and miscellaneous accessories",
-      "createdAt": "2024-12-20T10:00:00Z"
+      "parentId": null,
+      "level": 0,
+      "path": ["accessories"],
+      "image": "",
+      "isActive": true,
+      "order": 6,
+      "createdAt": "2024-12-20T10:00:00Z",
+      "updatedAt": "2024-12-20T10:00:00Z"
     }
   ]
 }
-

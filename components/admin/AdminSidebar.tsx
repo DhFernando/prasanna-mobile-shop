@@ -1,6 +1,7 @@
 /**
  * Admin Sidebar Component
  * Navigation sidebar for admin panel
+ * Supports dark/light mode
  */
 
 'use client';
@@ -10,6 +11,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Icon } from '@/components/atoms';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTheme } from '@/lib/theme';
 
 interface NavItem {
   label: string;
@@ -33,13 +35,17 @@ interface AdminSidebarProps {
 const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
   const pathname = usePathname();
   const { logout } = useAuth();
+  const { isDark, currentTheme } = useTheme();
 
   return (
     <>
       {/* Mobile Overlay */}
       {isOpen && (
         <div 
-          className="fixed inset-0 bg-stone-900/50 z-40 lg:hidden"
+          className={`
+            fixed inset-0 z-40 lg:hidden
+            ${isDark ? 'bg-black/60' : 'bg-stone-900/50'}
+          `}
           onClick={onClose}
         />
       )}
@@ -47,30 +53,47 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
       {/* Sidebar */}
       <aside className={`
         fixed top-0 left-0 bottom-0
-        w-64 bg-white
-        border-r border-stone-200
+        w-64
+        border-r
         z-50
-        transition-transform duration-300
+        transition-all duration-300
         lg:translate-x-0 lg:static lg:z-auto
         ${isOpen ? 'translate-x-0' : '-translate-x-full'}
+        ${isDark 
+          ? 'bg-stone-900 border-stone-700' 
+          : 'bg-white border-stone-200'
+        }
       `}>
         <div className="flex flex-col h-full">
           {/* Logo */}
-          <div className="p-5 border-b border-stone-200">
+          <div className={`
+            p-5 border-b
+            ${isDark ? 'border-stone-700' : 'border-stone-200'}
+          `}>
             <Link href="/admin" className="flex items-center gap-3">
-              <div className="
-                w-10 h-10 rounded-xl
-                bg-gradient-to-br from-teal-500 to-emerald-600
-                flex items-center justify-center
-                shadow-md shadow-teal-500/25
-              ">
+              <div 
+                className="
+                  w-10 h-10 rounded-xl
+                  flex items-center justify-center
+                  shadow-lg
+                "
+                style={{ 
+                  background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+                  boxShadow: `0 4px 14px ${currentTheme.primaryHex}40`
+                }}
+              >
                 <Icon name="smartphone" size={20} className="text-white" />
               </div>
               <div>
-                <h1 className="font-display font-bold text-stone-900">
+                <h1 className={`
+                  font-display font-bold
+                  ${isDark ? 'text-white' : 'text-stone-900'}
+                `}>
                   Admin Panel
                 </h1>
-                <p className="text-xs text-stone-500">Prasanna Mobile</p>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
+                  Prasanna Mobile
+                </p>
               </div>
             </Link>
           </div>
@@ -91,15 +114,22 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
                     px-4 py-3 rounded-xl
                     font-medium transition-all
                     ${isActive 
-                      ? 'bg-teal-50 text-teal-700 shadow-sm' 
-                      : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                      ? 'shadow-sm text-white' 
+                      : isDark
+                        ? 'text-stone-400 hover:bg-stone-800 hover:text-white'
+                        : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
                     }
                   `}
+                  style={isActive ? { 
+                    backgroundColor: `${currentTheme.primaryHex}15`,
+                    color: currentTheme.primaryHex 
+                  } : {}}
                 >
                   <Icon 
                     name={item.icon} 
                     size={20} 
-                    className={isActive ? 'text-teal-600' : 'text-stone-400'} 
+                    className={isActive ? '' : isDark ? 'text-stone-500' : 'text-stone-400'} 
+                    style={isActive ? { color: currentTheme.primaryHex } : {}}
                   />
                   {item.label}
                 </Link>
@@ -108,34 +138,100 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
           </nav>
 
           {/* Footer */}
-          <div className="p-4 border-t border-stone-200 space-y-2">
+          <div className={`
+            p-4 border-t space-y-1
+            ${isDark ? 'border-stone-700' : 'border-stone-200'}
+          `}>
             {/* View Website */}
             <a
               href="/"
               target="_blank"
               rel="noopener noreferrer"
-              className="
+              className={`
                 flex items-center gap-3
                 px-4 py-3 rounded-xl
-                text-stone-600 font-medium
-                hover:bg-stone-50 hover:text-stone-900
+                font-medium
                 transition-colors
-              "
+                ${isDark 
+                  ? 'text-stone-400 hover:bg-stone-800 hover:text-white' 
+                  : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                }
+              `}
             >
-              <Icon name="arrow-right" size={20} className="text-stone-400" />
+              <Icon name="arrow-right" size={20} className={isDark ? 'text-stone-500' : 'text-stone-400'} />
               View Website
             </a>
+
+            {/* Site Settings */}
+            <Link
+              href="/admin/site-settings"
+              onClick={onClose}
+              className={`
+                flex items-center gap-3
+                px-4 py-3 rounded-xl
+                font-medium
+                transition-colors
+                ${pathname === '/admin/site-settings'
+                  ? 'shadow-sm text-white'
+                  : isDark
+                    ? 'text-stone-400 hover:bg-stone-800 hover:text-white'
+                    : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                }
+              `}
+              style={pathname === '/admin/site-settings' ? { 
+                backgroundColor: `${currentTheme.primaryHex}15`,
+                color: currentTheme.primaryHex 
+              } : {}}
+            >
+              <Icon 
+                name="smartphone" 
+                size={20} 
+                className={pathname === '/admin/site-settings' ? '' : isDark ? 'text-stone-500' : 'text-stone-400'} 
+                style={pathname === '/admin/site-settings' ? { color: currentTheme.primaryHex } : {}}
+              />
+              Site Settings
+            </Link>
+
+            {/* Theme Settings */}
+            <Link
+              href="/admin/settings"
+              onClick={onClose}
+              className={`
+                flex items-center gap-3
+                px-4 py-3 rounded-xl
+                font-medium
+                transition-colors
+                ${pathname === '/admin/settings'
+                  ? 'shadow-sm text-white'
+                  : isDark
+                    ? 'text-stone-400 hover:bg-stone-800 hover:text-white'
+                    : 'text-stone-600 hover:bg-stone-50 hover:text-stone-900'
+                }
+              `}
+              style={pathname === '/admin/settings' ? { 
+                backgroundColor: `${currentTheme.primaryHex}15`,
+                color: currentTheme.primaryHex 
+              } : {}}
+            >
+              <Icon 
+                name="settings" 
+                size={20} 
+                className={pathname === '/admin/settings' ? '' : isDark ? 'text-stone-500' : 'text-stone-400'} 
+                style={pathname === '/admin/settings' ? { color: currentTheme.primaryHex } : {}}
+              />
+              Theme Settings
+            </Link>
 
             {/* Logout */}
             <button
               onClick={logout}
-              className="
+              className={`
                 w-full flex items-center gap-3
                 px-4 py-3 rounded-xl
-                text-red-600 font-medium
-                hover:bg-red-50
+                text-red-500 font-medium
                 transition-colors
-              "
+                ${isDark ? 'hover:bg-red-500/10' : 'hover:bg-red-50'}
+              `}
             >
               <Icon name="close" size={20} />
               Logout
@@ -148,4 +244,3 @@ const AdminSidebar: React.FC<AdminSidebarProps> = ({ isOpen, onClose }) => {
 };
 
 export default AdminSidebar;
-

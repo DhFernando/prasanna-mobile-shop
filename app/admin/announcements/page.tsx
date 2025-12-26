@@ -1,6 +1,7 @@
 /**
  * Announcements Management Page
  * CRUD operations for announcements
+ * Supports dark/light mode
  */
 
 'use client';
@@ -9,6 +10,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { Modal, ConfirmDialog, DataTable, FormInput, FormCheckbox } from '@/components/admin';
 import { Icon } from '@/components/atoms';
 import { Announcement, AnnouncementFormData } from '@/lib/types';
+import { useTheme } from '@/lib/theme';
 
 const initialFormData: AnnouncementFormData = {
   title: '',
@@ -19,6 +21,7 @@ const initialFormData: AnnouncementFormData = {
 };
 
 export default function AnnouncementsPage() {
+  const { isDark, currentTheme } = useTheme();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -163,12 +166,19 @@ export default function AnnouncementsPage() {
 
   // Get type badge styles
   const getTypeBadge = (type: string) => {
-    const styles = {
+    const lightStyles = {
       info: 'bg-blue-100 text-blue-700',
       promo: 'bg-purple-100 text-purple-700',
       warning: 'bg-amber-100 text-amber-700',
       success: 'bg-emerald-100 text-emerald-700',
     };
+    const darkStyles = {
+      info: 'bg-blue-500/20 text-blue-400',
+      promo: 'bg-purple-500/20 text-purple-400',
+      warning: 'bg-amber-500/20 text-amber-400',
+      success: 'bg-emerald-500/20 text-emerald-400',
+    };
+    const styles = isDark ? darkStyles : lightStyles;
     return styles[type as keyof typeof styles] || styles.info;
   };
 
@@ -179,12 +189,15 @@ export default function AnnouncementsPage() {
       header: 'Announcement',
       render: (ann: Announcement) => (
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-            <Icon name="sparkles" size={18} className="text-indigo-600" />
+          <div 
+            className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: `${currentTheme.primaryHex}20` }}
+          >
+            <Icon name="sparkles" size={18} style={{ color: currentTheme.primaryHex }} />
           </div>
           <div className="min-w-0">
-            <p className="font-medium text-stone-900 truncate">{ann.title}</p>
-            <p className="text-xs text-stone-500 truncate max-w-xs">{ann.message}</p>
+            <p className={`font-medium truncate ${isDark ? 'text-white' : 'text-stone-900'}`}>{ann.title}</p>
+            <p className={`text-xs truncate max-w-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{ann.message}</p>
           </div>
         </div>
       ),
@@ -209,11 +222,11 @@ export default function AnnouncementsPage() {
           inline-flex items-center gap-1.5
           px-2.5 py-1 rounded-full text-xs font-medium
           ${ann.active 
-            ? 'bg-emerald-100 text-emerald-700' 
-            : 'bg-stone-100 text-stone-500'
+            ? isDark ? 'bg-emerald-500/20 text-emerald-400' : 'bg-emerald-100 text-emerald-700' 
+            : isDark ? 'bg-stone-700 text-stone-400' : 'bg-stone-100 text-stone-500'
           }
         `}>
-          <span className={`w-1.5 h-1.5 rounded-full ${ann.active ? 'bg-emerald-500' : 'bg-stone-400'}`} />
+          <span className={`w-1.5 h-1.5 rounded-full ${ann.active ? 'bg-emerald-500' : isDark ? 'bg-stone-500' : 'bg-stone-400'}`} />
           {ann.active ? 'Active' : 'Inactive'}
         </span>
       ),
@@ -222,7 +235,7 @@ export default function AnnouncementsPage() {
       key: 'expiresAt',
       header: 'Expires',
       render: (ann: Announcement) => (
-        <span className="text-stone-500 text-sm">
+        <span className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
           {ann.expiresAt 
             ? new Date(ann.expiresAt).toLocaleDateString() 
             : 'Never'
@@ -244,24 +257,20 @@ export default function AnnouncementsPage() {
       {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 className="font-display text-2xl sm:text-3xl font-bold text-stone-900 mb-1">
+          <h1 className={`font-display text-2xl sm:text-3xl font-bold mb-1 ${isDark ? 'text-white' : 'text-stone-900'}`}>
             Announcements
           </h1>
-          <p className="text-stone-500">
+          <p className={isDark ? 'text-stone-400' : 'text-stone-500'}>
             Create announcements to display on your website
           </p>
         </div>
         <button
           onClick={openAddModal}
-          className="
-            inline-flex items-center gap-2
-            px-5 py-2.5
-            bg-gradient-to-r from-indigo-600 to-purple-600
-            text-white font-semibold rounded-xl
-            shadow-lg shadow-indigo-500/25
-            hover:from-indigo-500 hover:to-purple-500
-            transition-all
-          "
+          className="inline-flex items-center gap-2 px-5 py-2.5 text-white font-semibold rounded-xl shadow-lg transition-all hover:opacity-90"
+          style={{ 
+            background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`,
+            boxShadow: `0 4px 14px ${currentTheme.primaryHex}40`
+          }}
         >
           <Icon name="sparkles" size={18} />
           Add Announcement
@@ -337,33 +346,25 @@ export default function AnnouncementsPage() {
             description="Show this announcement on the website"
           />
 
-          <div className="flex gap-3 mt-6 pt-4 border-t border-stone-200">
+          <div className={`flex gap-3 mt-6 pt-4 border-t ${isDark ? 'border-stone-700' : 'border-stone-200'}`}>
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="
-                flex-1 py-3 px-4
-                rounded-xl font-semibold
-                bg-stone-100 text-stone-700
-                hover:bg-stone-200
-                transition-colors
-              "
+              className={`flex-1 py-3 px-4 rounded-xl font-semibold transition-colors ${
+                isDark 
+                  ? 'bg-stone-700 text-stone-300 hover:bg-stone-600' 
+                  : 'bg-stone-100 text-stone-700 hover:bg-stone-200'
+              }`}
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="
-                flex-1 py-3 px-4
-                rounded-xl font-semibold
-                bg-gradient-to-r from-indigo-600 to-purple-600
-                text-white
-                hover:from-indigo-500 hover:to-purple-500
-                disabled:opacity-50
-                transition-all
-                flex items-center justify-center gap-2
-              "
+              className="flex-1 py-3 px-4 rounded-xl font-semibold text-white disabled:opacity-50 transition-all flex items-center justify-center gap-2"
+              style={{ 
+                background: `linear-gradient(135deg, ${currentTheme.primaryHex}, ${currentTheme.primaryDark})`
+              }}
             >
               {isSubmitting ? (
                 <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -395,4 +396,5 @@ export default function AnnouncementsPage() {
     </div>
   );
 }
+
 
