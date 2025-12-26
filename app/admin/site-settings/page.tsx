@@ -49,14 +49,55 @@ export default function SiteSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveMessage, setSaveMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   
+  // Common country codes
+  const countryCodes = [
+    { code: '+94', country: 'Sri Lanka', flag: '🇱🇰' },
+    { code: '+1', country: 'USA/Canada', flag: '🇺🇸' },
+    { code: '+44', country: 'UK', flag: '🇬🇧' },
+    { code: '+91', country: 'India', flag: '🇮🇳' },
+    { code: '+61', country: 'Australia', flag: '🇦🇺' },
+    { code: '+49', country: 'Germany', flag: '🇩🇪' },
+    { code: '+33', country: 'France', flag: '🇫🇷' },
+    { code: '+971', country: 'UAE', flag: '🇦🇪' },
+    { code: '+966', country: 'Saudi Arabia', flag: '🇸🇦' },
+    { code: '+65', country: 'Singapore', flag: '🇸🇬' },
+    { code: '+60', country: 'Malaysia', flag: '🇲🇾' },
+    { code: '+81', country: 'Japan', flag: '🇯🇵' },
+    { code: '+82', country: 'South Korea', flag: '🇰🇷' },
+    { code: '+86', country: 'China', flag: '🇨🇳' },
+    { code: '+39', country: 'Italy', flag: '🇮🇹' },
+    { code: '+34', country: 'Spain', flag: '🇪🇸' },
+    { code: '+55', country: 'Brazil', flag: '🇧🇷' },
+    { code: '+27', country: 'South Africa', flag: '🇿🇦' },
+    { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
+    { code: '+254', country: 'Kenya', flag: '🇰🇪' },
+  ];
+
+  // Helper to extract country code and local number from international format
+  const parsePhoneNumber = (internationalNumber: string): { countryCode: string; localNumber: string } => {
+    if (!internationalNumber) return { countryCode: '+94', localNumber: '' };
+    
+    // Try to match a country code from our list
+    for (const { code } of countryCodes) {
+      if (internationalNumber.startsWith(code)) {
+        return { countryCode: code, localNumber: internationalNumber.slice(code.length) };
+      }
+    }
+    
+    // Default to Sri Lanka if no match
+    return { countryCode: '+94', localNumber: internationalNumber.replace(/^\+/, '') };
+  };
+
   // Form state
   const [formData, setFormData] = useState({
     siteName: '',
     tagline: '',
     description: '',
     phone: '',
-    phoneInternational: '',
-    whatsapp: '',
+    phoneCountryCode: '+94',
+    phoneLocal: '',
+    whatsappCountryCode: '+94',
+    whatsappLocal: '',
     email: '',
     addressLine1: '',
     addressLine2: '',
@@ -83,13 +124,19 @@ export default function SiteSettingsPage() {
         if (data.success && data.data) {
           const s = data.data as SiteSettings;
           setSettings(s);
+          // Parse phone numbers
+          const phoneInfo = parsePhoneNumber(s.contact?.phoneInternational || '');
+          const whatsappInfo = parsePhoneNumber(s.contact?.whatsapp || '');
+          
           setFormData({
             siteName: s.siteName || '',
             tagline: s.tagline || '',
             description: s.description || '',
             phone: s.contact?.phone || '',
-            phoneInternational: s.contact?.phoneInternational || '',
-            whatsapp: s.contact?.whatsapp || '',
+            phoneCountryCode: phoneInfo.countryCode,
+            phoneLocal: phoneInfo.localNumber,
+            whatsappCountryCode: whatsappInfo.countryCode,
+            whatsappLocal: whatsappInfo.localNumber,
             email: s.contact?.email || '',
             addressLine1: s.address?.line1 || '',
             addressLine2: s.address?.line2 || '',
@@ -127,11 +174,18 @@ export default function SiteSettingsPage() {
     setIsSaving(true);
     setSaveMessage(null);
     
+    // Combine country codes with local numbers
+    const dataToSave = {
+      ...formData,
+      phoneInternational: `${formData.phoneCountryCode}${formData.phoneLocal.replace(/^0+/, '')}`,
+      whatsapp: `${formData.whatsappCountryCode}${formData.whatsappLocal.replace(/^0+/, '')}`,
+    };
+    
     try {
       const res = await fetch('/api/site-settings', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(dataToSave),
       });
       
       if (res.ok) {
@@ -242,28 +296,97 @@ export default function SiteSettingsPage() {
             <Icon name="phone" size={20} style={{ color: currentTheme.primaryHex }} />
             Contact Information
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-4">
+            {/* Display Phone Number */}
             <FormInput
-              label="Phone Number"
+              label="Display Phone Number"
               name="phone"
               value={formData.phone}
               onChange={handleInputChange}
               placeholder="e.g. 072 290 2299"
             />
-            <FormInput
-              label="Phone (International Format)"
-              name="phoneInternational"
-              value={formData.phoneInternational}
-              onChange={handleInputChange}
-              placeholder="e.g. +94722902299"
-            />
-            <FormInput
-              label="WhatsApp Number"
-              name="whatsapp"
-              value={formData.whatsapp}
-              onChange={handleInputChange}
-              placeholder="e.g. +94722902299"
-            />
+            
+            {/* Phone Number with Country Code */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-stone-300' : 'text-stone-700'}`}>
+                Phone Number (for links)
+              </label>
+              <div className="flex gap-2">
+                <select
+                  name="phoneCountryCode"
+                  value={formData.phoneCountryCode}
+                  onChange={handleInputChange}
+                  className={`w-40 px-3 py-2.5 rounded-xl border focus:outline-none focus:ring-2 transition-colors ${
+                    isDark 
+                      ? 'bg-stone-700 border-stone-600 text-white focus:ring-stone-500' 
+                      : 'bg-white border-stone-300 text-stone-900 focus:ring-teal-500'
+                  }`}
+                >
+                  {countryCodes.map(({ code, country, flag }) => (
+                    <option key={code} value={code}>
+                      {flag} {code} {country}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  name="phoneLocal"
+                  value={formData.phoneLocal}
+                  onChange={handleInputChange}
+                  placeholder="722902299"
+                  className={`flex-1 px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 transition-colors ${
+                    isDark 
+                      ? 'bg-stone-700 border-stone-600 text-white placeholder:text-stone-500 focus:ring-stone-500' 
+                      : 'bg-white border-stone-300 text-stone-900 placeholder:text-stone-400 focus:ring-teal-500'
+                  }`}
+                />
+              </div>
+              <p className={`text-xs mt-1 ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
+                Combined: {formData.phoneCountryCode}{formData.phoneLocal.replace(/^0+/, '') || '...'}
+              </p>
+            </div>
+            
+            {/* WhatsApp Number with Country Code */}
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-stone-300' : 'text-stone-700'}`}>
+                WhatsApp Number
+              </label>
+              <div className="flex gap-2">
+                <select
+                  name="whatsappCountryCode"
+                  value={formData.whatsappCountryCode}
+                  onChange={handleInputChange}
+                  className={`w-40 px-3 py-2.5 rounded-xl border focus:outline-none focus:ring-2 transition-colors ${
+                    isDark 
+                      ? 'bg-stone-700 border-stone-600 text-white focus:ring-stone-500' 
+                      : 'bg-white border-stone-300 text-stone-900 focus:ring-teal-500'
+                  }`}
+                >
+                  {countryCodes.map(({ code, country, flag }) => (
+                    <option key={code} value={code}>
+                      {flag} {code} {country}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="tel"
+                  name="whatsappLocal"
+                  value={formData.whatsappLocal}
+                  onChange={handleInputChange}
+                  placeholder="722902299"
+                  className={`flex-1 px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 transition-colors ${
+                    isDark 
+                      ? 'bg-stone-700 border-stone-600 text-white placeholder:text-stone-500 focus:ring-stone-500' 
+                      : 'bg-white border-stone-300 text-stone-900 placeholder:text-stone-400 focus:ring-teal-500'
+                  }`}
+                />
+              </div>
+              <p className={`text-xs mt-1 ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
+                Combined: {formData.whatsappCountryCode}{formData.whatsappLocal.replace(/^0+/, '') || '...'}
+              </p>
+            </div>
+            
+            {/* Email */}
             <FormInput
               label="Email Address"
               name="email"
