@@ -9,15 +9,26 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { Modal, ConfirmDialog, FormInput } from '@/components/admin';
 import { Icon } from '@/components/atoms';
-import { Sale, SaleFormData } from '@/lib/types';
+import { Sale, SaleFormData, SaleItemFormData } from '@/lib/types';
 import { useTheme } from '@/lib/theme';
+import { useSiteSettings } from '@/lib/site-settings-context';
 
 const ITEMS_PER_PAGE = 15;
 
-const initialFormData: SaleFormData = {
-  itemName: '',
+// Generate unique ID for items
+const generateItemId = () => `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+// Create empty item
+const createEmptyItem = (): SaleItemFormData => ({
+  id: generateItemId(),
+  name: '',
   quantity: 1,
   unitPrice: 0,
+});
+
+const initialFormData: SaleFormData = {
+  items: [createEmptyItem()],
+  discount: 0,
   customerName: '',
   customerPhone: '',
   notes: '',
@@ -26,6 +37,7 @@ const initialFormData: SaleFormData = {
 
 export default function SalesPage() {
   const { isDark, currentTheme } = useTheme();
+  const { settings } = useSiteSettings();
   const [sales, setSales] = useState<Sale[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -89,7 +101,7 @@ export default function SalesPage() {
     setCurrentPage(1);
   }, [searchQuery, startDate, endDate]);
 
-  // Handle form input changes
+  // Handle form input changes (for non-item fields)
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -100,11 +112,50 @@ export default function SalesPage() {
     }));
   };
 
+  // Handle item field changes
+  const handleItemChange = (itemId: string, field: keyof SaleItemFormData, value: string | number) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.map(item => 
+        item.id === itemId 
+          ? { ...item, [field]: field === 'name' ? value : (parseFloat(String(value)) || 0) }
+          : item
+      ),
+    }));
+  };
+
+  // Add new item
+  const addItem = () => {
+    setFormData(prev => ({
+      ...prev,
+      items: [...prev.items, createEmptyItem()],
+    }));
+  };
+
+  // Remove item
+  const removeItem = (itemId: string) => {
+    setFormData(prev => ({
+      ...prev,
+      items: prev.items.filter(item => item.id !== itemId),
+    }));
+  };
+
+  // Calculate subtotal
+  const calculateSubtotal = () => {
+    return formData.items.reduce((sum, item) => sum + (item.quantity * item.unitPrice), 0);
+  };
+
+  // Calculate total (subtotal - discount)
+  const calculateTotal = () => {
+    return calculateSubtotal() - (formData.discount || 0);
+  };
+
   // Open add modal
   const openAddModal = () => {
     setEditingSale(null);
     setFormData({
       ...initialFormData,
+      items: [createEmptyItem()],
       saleDate: new Date().toISOString().split('T')[0],
     });
     setIsModalOpen(true);
@@ -113,10 +164,25 @@ export default function SalesPage() {
   // Open edit modal
   const openEditModal = (sale: Sale) => {
     setEditingSale(sale);
+    
+    // Convert sale to form data (handle both multi-item and legacy)
+    const items: SaleItemFormData[] = sale.items && sale.items.length > 0
+      ? sale.items.map(item => ({
+          id: item.id || generateItemId(),
+          name: item.name,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+        }))
+      : [{
+          id: generateItemId(),
+          name: sale.itemName || '',
+          quantity: sale.quantity || 1,
+          unitPrice: sale.unitPrice || 0,
+        }];
+    
     setFormData({
-      itemName: sale.itemName,
-      quantity: sale.quantity,
-      unitPrice: sale.unitPrice,
+      items,
+      discount: sale.discount || 0,
       customerName: sale.customerName || '',
       customerPhone: sale.customerPhone || '',
       notes: sale.notes || '',
@@ -134,6 +200,14 @@ export default function SalesPage() {
   // Handle form submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Validate at least one item with name
+    const validItems = formData.items.filter(item => item.name.trim() !== '');
+    if (validItems.length === 0) {
+      alert('Please add at least one item with a name');
+      return;
+    }
+    
     setIsSubmitting(true);
 
     try {
@@ -146,7 +220,11 @@ export default function SalesPage() {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          ...formData,
+          items: validItems,
+          discount: formData.discount || 0,
+          customerName: formData.customerName,
+          customerPhone: formData.customerPhone,
+          notes: formData.notes,
           saleDate: new Date(formData.saleDate).toISOString(),
         }),
       });
@@ -200,7 +278,7 @@ export default function SalesPage() {
       <!DOCTYPE html>
       <html>
         <head>
-          <title>Invoice - Prasanna Mobile Center</title>
+          <title>Invoice - ${settings?.siteName || 'Mobile Center'}</title>
           <style>
             * { margin: 0; padding: 0; box-sizing: border-box; }
             body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; max-width: 400px; margin: 0 auto; }
@@ -247,9 +325,6 @@ export default function SalesPage() {
       minute: '2-digit',
     });
   };
-
-  // Calculate total
-  const calculateTotal = () => formData.quantity * formData.unitPrice;
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -433,9 +508,25 @@ export default function SalesPage() {
                         </div>
                       </td>
                       <td className="py-3 px-4">
-                        <p className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>{sale.itemName}</p>
+                        {/* Display items - multi-item or legacy */}
+                        {sale.items && sale.items.length > 0 ? (
+                          <div>
+                            <p className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>
+                              {sale.items.length === 1 
+                                ? sale.items[0].name 
+                                : `${sale.items[0].name} +${sale.items.length - 1} more`}
+                            </p>
+                            {sale.items.length > 1 && (
+                              <p className={`text-xs ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>
+                                {sale.items.map(i => i.name).join(', ')}
+                              </p>
+                            )}
+                          </div>
+                        ) : (
+                          <p className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>{sale.itemName}</p>
+                        )}
                         {sale.notes && (
-                          <p className={`text-xs line-clamp-1 ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>{sale.notes}</p>
+                          <p className={`text-xs line-clamp-1 mt-1 ${isDark ? 'text-stone-500' : 'text-stone-500'}`}>{sale.notes}</p>
                         )}
                       </td>
                       <td className="py-3 px-4">
@@ -451,10 +542,20 @@ export default function SalesPage() {
                         )}
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>{sale.quantity}</span>
+                        {/* Total items count */}
+                        <span className={`font-medium ${isDark ? 'text-white' : 'text-stone-900'}`}>
+                          {sale.items && sale.items.length > 0 
+                            ? sale.items.reduce((sum, i) => sum + i.quantity, 0)
+                            : sale.quantity}
+                        </span>
                       </td>
                       <td className="py-3 px-4 text-right">
-                        <span className={isDark ? 'text-stone-400' : 'text-stone-600'}>Rs. {sale.unitPrice.toLocaleString()}</span>
+                        {/* Show subtotal or unit price */}
+                        <span className={isDark ? 'text-stone-400' : 'text-stone-600'}>
+                          {sale.items && sale.items.length > 1 
+                            ? `${sale.items.length} items`
+                            : `Rs. ${(sale.unitPrice || sale.items?.[0]?.unitPrice || 0).toLocaleString()}`}
+                        </span>
                       </td>
                       <td className="py-3 px-4 text-right">
                         <span className="font-bold" style={{ color: currentTheme.primaryHex }}>Rs. {sale.totalPrice.toLocaleString()}</span>
@@ -549,60 +650,162 @@ export default function SalesPage() {
         size="lg"
       >
         <form onSubmit={handleSubmit}>
-          <FormInput
-            label="Item Name"
-            name="itemName"
-            value={formData.itemName}
-            onChange={handleInputChange}
-            placeholder="e.g. iPhone 15 Pro Case"
-            required
-          />
+          {/* Items Section */}
+          <div className={`mb-4 p-4 rounded-xl border ${isDark ? 'bg-stone-800/50 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
+            <div className="flex items-center justify-between mb-3">
+              <h3 className={`font-semibold ${isDark ? 'text-white' : 'text-stone-900'}`}>
+                Items ({formData.items.length})
+              </h3>
+              <button
+                type="button"
+                onClick={addItem}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium rounded-lg transition-colors"
+                style={{ 
+                  backgroundColor: `${currentTheme.primaryHex}15`,
+                  color: currentTheme.primaryHex 
+                }}
+              >
+                <Icon name="plus" size={16} />
+                Add Item
+              </button>
+            </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <FormInput
-              label="Quantity"
-              name="quantity"
-              type="number"
-              value={formData.quantity}
-              onChange={handleInputChange}
-              min={1}
-              required
-            />
+            <div className="space-y-3">
+              {formData.items.map((item, index) => (
+                <div 
+                  key={item.id} 
+                  className={`p-3 rounded-lg border ${isDark ? 'bg-stone-900 border-stone-700' : 'bg-white border-stone-200'}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <span className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium mt-2 ${
+                      isDark ? 'bg-stone-700 text-stone-300' : 'bg-stone-200 text-stone-600'
+                    }`}>
+                      {index + 1}
+                    </span>
+                    
+                    <div className="flex-1 space-y-2">
+                      <input
+                        type="text"
+                        placeholder="Item name (e.g. iPhone 15 Pro Case)"
+                        value={item.name}
+                        onChange={(e) => handleItemChange(item.id, 'name', e.target.value)}
+                        className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-colors ${
+                          isDark 
+                            ? 'bg-stone-800 border-stone-600 text-white placeholder:text-stone-500 focus:ring-stone-500' 
+                            : 'bg-white border-stone-300 text-stone-900 placeholder:text-stone-400 focus:ring-teal-500'
+                        }`}
+                      />
+                      
+                      <div className="grid grid-cols-3 gap-2">
+                        <div>
+                          <label className={`text-xs font-medium ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Qty</label>
+                          <input
+                            type="number"
+                            min={1}
+                            value={item.quantity}
+                            onChange={(e) => handleItemChange(item.id, 'quantity', e.target.value)}
+                            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-colors ${
+                              isDark 
+                                ? 'bg-stone-800 border-stone-600 text-white focus:ring-stone-500' 
+                                : 'bg-white border-stone-300 text-stone-900 focus:ring-teal-500'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <label className={`text-xs font-medium ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Unit Price</label>
+                          <input
+                            type="number"
+                            min={0}
+                            value={item.unitPrice}
+                            onChange={(e) => handleItemChange(item.id, 'unitPrice', e.target.value)}
+                            className={`w-full px-3 py-2 rounded-lg border focus:outline-none focus:ring-2 transition-colors ${
+                              isDark 
+                                ? 'bg-stone-800 border-stone-600 text-white focus:ring-stone-500' 
+                                : 'bg-white border-stone-300 text-stone-900 focus:ring-teal-500'
+                            }`}
+                          />
+                        </div>
+                        <div>
+                          <label className={`text-xs font-medium ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Subtotal</label>
+                          <div className={`px-3 py-2 rounded-lg font-medium ${isDark ? 'bg-stone-700 text-white' : 'bg-stone-100 text-stone-900'}`}>
+                            Rs. {(item.quantity * item.unitPrice).toLocaleString()}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-            <FormInput
-              label="Unit Price (Rs.)"
-              name="unitPrice"
-              type="number"
-              value={formData.unitPrice}
-              onChange={handleInputChange}
-              min={0}
-              required
-            />
+                    {formData.items.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => removeItem(item.id)}
+                        className="flex-shrink-0 p-2 text-red-500 hover:bg-red-500/10 rounded-lg transition-colors mt-1"
+                      >
+                        <Icon name="trash" size={18} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
-          {/* Total Display */}
+          {/* Discount */}
+          <div className="grid grid-cols-2 gap-4 mb-4">
+            <FormInput
+              label="Discount (Rs.)"
+              name="discount"
+              type="number"
+              value={formData.discount}
+              onChange={handleInputChange}
+              min={0}
+              placeholder="0"
+            />
+            <div>
+              <label className={`block text-sm font-medium mb-2 ${isDark ? 'text-stone-300' : 'text-stone-700'}`}>
+                Sale Date
+              </label>
+              <input
+                type="date"
+                name="saleDate"
+                value={formData.saleDate}
+                onChange={handleInputChange}
+                required
+                className={`w-full px-4 py-2.5 rounded-xl border focus:outline-none focus:ring-2 transition-colors ${
+                  isDark 
+                    ? 'bg-stone-700 border-stone-600 text-white focus:ring-stone-500' 
+                    : 'bg-white border-stone-300 text-stone-900 focus:ring-teal-500'
+                }`}
+              />
+            </div>
+          </div>
+
+          {/* Totals Display */}
           <div 
-            className="rounded-lg p-3 mb-4 border"
+            className="rounded-xl p-4 mb-4 border"
             style={{ 
               backgroundColor: `${currentTheme.primaryHex}10`,
               borderColor: `${currentTheme.primaryHex}30`
             }}
           >
-            <div className="flex items-center justify-between">
-              <span className="font-medium" style={{ color: currentTheme.primaryHex }}>Total Amount:</span>
-              <span className="text-xl font-bold" style={{ color: currentTheme.primaryHex }}>Rs. {calculateTotal().toLocaleString()}</span>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className={isDark ? 'text-stone-400' : 'text-stone-600'}>Subtotal ({formData.items.length} items):</span>
+                <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>Rs. {calculateSubtotal().toLocaleString()}</span>
+              </div>
+              {formData.discount > 0 && (
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-red-500">Discount:</span>
+                  <span className="text-red-500">- Rs. {formData.discount.toLocaleString()}</span>
+                </div>
+              )}
+              <div className={`flex items-center justify-between pt-2 border-t ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
+                <span className="font-semibold" style={{ color: currentTheme.primaryHex }}>Total Amount:</span>
+                <span className="text-2xl font-bold" style={{ color: currentTheme.primaryHex }}>Rs. {calculateTotal().toLocaleString()}</span>
+              </div>
             </div>
           </div>
 
-          <FormInput
-            label="Sale Date"
-            name="saleDate"
-            type="date"
-            value={formData.saleDate}
-            onChange={handleInputChange}
-            required
-          />
-
+          {/* Customer Info */}
           <div className="grid grid-cols-2 gap-4">
             <FormInput
               label="Customer Name (optional)"
@@ -679,9 +882,9 @@ export default function SalesPage() {
             {/* Printable Invoice Content */}
             <div ref={printRef} className="bg-white">
               <div className="header">
-                <h1>Prasanna Mobile Center</h1>
-                <p>No 16, Old Negombo Rd, Ja-Ela, Sri Lanka</p>
-                <p>Phone: 072 290 2299</p>
+                <h1>{settings?.siteName || 'Mobile Center'}</h1>
+                <p>{settings?.address?.line1 || ''}{settings?.address?.line2 ? `, ${settings.address.line2}` : ''}</p>
+                <p>Phone: {settings?.contact?.phone || ''}</p>
               </div>
 
               <div className="details">
@@ -708,19 +911,37 @@ export default function SalesPage() {
               </div>
 
               <div className="items">
-                <div className="item">
-                  <div className="item-name">{billSale.itemName}</div>
-                  <div className="item-details">
-                    {billSale.quantity} x Rs. {billSale.unitPrice.toLocaleString()}
+                {/* Display all items - multi-item or legacy */}
+                {billSale.items && billSale.items.length > 0 ? (
+                  billSale.items.map((item, idx) => (
+                    <div className="item" key={item.id || idx}>
+                      <div className="item-name">{item.name}</div>
+                      <div className="item-details">
+                        {item.quantity} x Rs. {item.unitPrice.toLocaleString()} = Rs. {item.totalPrice.toLocaleString()}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="item">
+                    <div className="item-name">{billSale.itemName}</div>
+                    <div className="item-details">
+                      {billSale.quantity} x Rs. {(billSale.unitPrice || 0).toLocaleString()}
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
 
               <div className="totals">
                 <div className="totals-row">
                   <span>Subtotal:</span>
-                  <span>Rs. {billSale.totalPrice.toLocaleString()}</span>
+                  <span>Rs. {(billSale.subtotal || billSale.totalPrice).toLocaleString()}</span>
                 </div>
+                {billSale.discount && billSale.discount > 0 && (
+                  <div className="totals-row">
+                    <span>Discount:</span>
+                    <span>- Rs. {billSale.discount.toLocaleString()}</span>
+                  </div>
+                )}
                 <div className="totals-row total">
                   <span>Total:</span>
                   <span>Rs. {billSale.totalPrice.toLocaleString()}</span>
@@ -736,9 +957,9 @@ export default function SalesPage() {
             {/* Preview (styled version) */}
             <div className={`mt-6 p-4 rounded-lg border ${isDark ? 'bg-stone-800 border-stone-700' : 'bg-stone-50 border-stone-200'}`}>
               <div className={`text-center mb-4 pb-4 border-b-2 border-dashed ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
-                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-stone-900'}`}>Prasanna Mobile Center</h3>
-                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>No 16, Old Negombo Rd, Ja-Ela, Sri Lanka</p>
-                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Phone: 072 290 2299</p>
+                <h3 className={`font-bold text-lg ${isDark ? 'text-white' : 'text-stone-900'}`}>{settings?.siteName || 'Mobile Center'}</h3>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{settings?.address?.line1 || ''}{settings?.address?.line2 ? `, ${settings.address.line2}` : ''}</p>
+                <p className={`text-xs ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Phone: {settings?.contact?.phone || ''}</p>
               </div>
 
               <div className="space-y-2 text-sm mb-4">
@@ -758,12 +979,43 @@ export default function SalesPage() {
                 )}
               </div>
 
-              <div className={`py-4 border-t border-b border-dashed mb-4 ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
-                <p className={`font-semibold ${isDark ? 'text-white' : 'text-stone-900'}`}>{billSale.itemName}</p>
-                <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{billSale.quantity} x Rs. {billSale.unitPrice.toLocaleString()}</p>
+              <div className={`py-4 border-t border-b border-dashed mb-4 space-y-3 ${isDark ? 'border-stone-600' : 'border-stone-300'}`}>
+                {/* Display all items - multi-item or legacy */}
+                {billSale.items && billSale.items.length > 0 ? (
+                  billSale.items.map((item, idx) => (
+                    <div key={item.id || idx}>
+                      <p className={`font-semibold ${isDark ? 'text-white' : 'text-stone-900'}`}>{item.name}</p>
+                      <div className="flex justify-between text-sm">
+                        <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>{item.quantity} x Rs. {item.unitPrice.toLocaleString()}</span>
+                        <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>Rs. {item.totalPrice.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div>
+                    <p className={`font-semibold ${isDark ? 'text-white' : 'text-stone-900'}`}>{billSale.itemName}</p>
+                    <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>{billSale.quantity} x Rs. {(billSale.unitPrice || 0).toLocaleString()}</p>
+                  </div>
+                )}
               </div>
 
-              <div className={`flex justify-between items-center text-lg font-bold ${isDark ? 'text-white' : 'text-stone-900'}`}>
+              {/* Subtotal and discount */}
+              {billSale.items && billSale.items.length > 1 && (
+                <div className="space-y-1 mb-2 text-sm">
+                  <div className="flex justify-between">
+                    <span className={isDark ? 'text-stone-400' : 'text-stone-500'}>Subtotal:</span>
+                    <span className={isDark ? 'text-stone-300' : 'text-stone-700'}>Rs. {(billSale.subtotal || billSale.totalPrice).toLocaleString()}</span>
+                  </div>
+                  {billSale.discount && billSale.discount > 0 && (
+                    <div className="flex justify-between text-red-500">
+                      <span>Discount:</span>
+                      <span>- Rs. {billSale.discount.toLocaleString()}</span>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              <div className={`flex justify-between items-center text-lg font-bold pt-2 border-t ${isDark ? 'text-white border-stone-700' : 'text-stone-900 border-stone-200'}`}>
                 <span>Total:</span>
                 <span style={{ color: currentTheme.primaryHex }}>Rs. {billSale.totalPrice.toLocaleString()}</span>
               </div>

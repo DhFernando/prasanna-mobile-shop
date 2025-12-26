@@ -79,7 +79,7 @@ export async function PUT(
     }
 
     // If parent changed, recalculate path and level
-    let updates = { ...body };
+    const updates: Record<string, unknown> = { ...body };
     if (body.parentId !== undefined && body.parentId !== currentCategory.parentId) {
       if (body.parentId === null) {
         updates.level = 0;

@@ -1,12 +1,40 @@
 /**
  * Sales API Routes
  * GET - Fetch all sales with optional filters and pagination
- * POST - Create a new sale
+ * POST - Create a new sale (supports multiple items)
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import { getSales, addSale, generateId } from '@/lib/data';
-import { Sale } from '@/lib/types';
+import { Sale, SaleItem } from '@/lib/types';
+
+// Helper to get total items from a sale (handles both legacy and multi-item)
+function getSaleItemCount(sale: Sale): number {
+  if (sale.items && sale.items.length > 0) {
+    return sale.items.reduce((sum, item) => sum + item.quantity, 0);
+  }
+  return sale.quantity || 0;
+}
+
+// Helper to get searchable text from sale
+function getSaleSearchableText(sale: Sale): string {
+  const texts: string[] = [];
+  
+  // Multi-item sale
+  if (sale.items && sale.items.length > 0) {
+    sale.items.forEach(item => texts.push(item.name.toLowerCase()));
+  }
+  
+  // Legacy single-item
+  if (sale.itemName) {
+    texts.push(sale.itemName.toLowerCase());
+  }
+  
+  if (sale.customerName) texts.push(sale.customerName.toLowerCase());
+  if (sale.notes) texts.push(sale.notes.toLowerCase());
+  
+  return texts.join(' ');
+}
 
 // GET - Fetch sales with filters and pagination
 export async function GET(request: NextRequest) {
@@ -25,11 +53,7 @@ export async function GET(request: NextRequest) {
     // Apply search filter
     if (search) {
       const searchLower = search.toLowerCase();
-      sales = sales.filter(sale => 
-        sale.itemName.toLowerCase().includes(searchLower) ||
-        (sale.customerName && sale.customerName.toLowerCase().includes(searchLower)) ||
-        (sale.notes && sale.notes.toLowerCase().includes(searchLower))
-      );
+      sales = sales.filter(sale => getSaleSearchableText(sale).includes(searchLower));
     }
 
     // Apply date filters
@@ -64,7 +88,7 @@ export async function GET(request: NextRequest) {
     // Calculate totals before pagination
     const totalSales = sales.length;
     const totalRevenue = sales.reduce((sum, sale) => sum + sale.totalPrice, 0);
-    const totalItems = sales.reduce((sum, sale) => sum + sale.quantity, 0);
+    const totalItems = sales.reduce((sum, sale) => sum + getSaleItemCount(sale), 0);
 
     // Apply pagination
     const startIndex = (page - 1) * limit;
@@ -95,41 +119,92 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST - Create a new sale
+// POST - Create a new sale (supports multiple items)
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { itemName, quantity, unitPrice, customerName, customerPhone, notes, saleDate } = body;
+    const { items, discount = 0, customerName, customerPhone, notes, saleDate } = body;
 
-    // Validate required fields
-    if (!itemName || !quantity || !unitPrice) {
-      return NextResponse.json(
-        { success: false, error: 'Item name, quantity, and unit price are required' },
-        { status: 400 }
-      );
+    // Check if it's a multi-item sale or legacy single-item
+    if (items && Array.isArray(items) && items.length > 0) {
+      // Multi-item sale
+      const saleItems: SaleItem[] = items.map((item: { id?: string; name: string; quantity: number; unitPrice: number }) => ({
+        id: item.id || generateId('item'),
+        name: item.name,
+        quantity: parseInt(String(item.quantity)),
+        unitPrice: parseFloat(String(item.unitPrice)),
+        totalPrice: parseInt(String(item.quantity)) * parseFloat(String(item.unitPrice)),
+      }));
+
+      const subtotal = saleItems.reduce((sum, item) => sum + item.totalPrice, 0);
+      const totalPrice = subtotal - parseFloat(String(discount));
+
+      const now = new Date().toISOString();
+
+      const newSale: Sale = {
+        id: generateId('sale'),
+        items: saleItems,
+        subtotal,
+        discount: parseFloat(String(discount)),
+        totalPrice,
+        customerName: customerName || '',
+        customerPhone: customerPhone || '',
+        notes: notes || '',
+        saleDate: saleDate || now,
+        createdAt: now,
+      };
+
+      addSale(newSale);
+
+      return NextResponse.json({
+        success: true,
+        data: newSale,
+      }, { status: 201 });
+    } else {
+      // Legacy single-item sale (backward compatibility)
+      const { itemName, quantity, unitPrice } = body;
+
+      if (!itemName || !quantity || !unitPrice) {
+        return NextResponse.json(
+          { success: false, error: 'Item name, quantity, and unit price are required' },
+          { status: 400 }
+        );
+      }
+
+      const now = new Date().toISOString();
+      const itemId = generateId('item');
+      const saleItem: SaleItem = {
+        id: itemId,
+        name: itemName,
+        quantity: parseInt(String(quantity)),
+        unitPrice: parseFloat(String(unitPrice)),
+        totalPrice: parseInt(String(quantity)) * parseFloat(String(unitPrice)),
+      };
+
+      const newSale: Sale = {
+        id: generateId('sale'),
+        items: [saleItem],
+        subtotal: saleItem.totalPrice,
+        discount: 0,
+        totalPrice: saleItem.totalPrice,
+        // Legacy fields for backward compatibility
+        itemName,
+        quantity: parseInt(String(quantity)),
+        unitPrice: parseFloat(String(unitPrice)),
+        customerName: customerName || '',
+        customerPhone: customerPhone || '',
+        notes: notes || '',
+        saleDate: saleDate || now,
+        createdAt: now,
+      };
+
+      addSale(newSale);
+
+      return NextResponse.json({
+        success: true,
+        data: newSale,
+      }, { status: 201 });
     }
-
-    const now = new Date().toISOString();
-
-    const newSale: Sale = {
-      id: generateId('sale'),
-      itemName,
-      quantity: parseInt(quantity),
-      unitPrice: parseFloat(unitPrice),
-      totalPrice: parseInt(quantity) * parseFloat(unitPrice),
-      customerName: customerName || '',
-      customerPhone: customerPhone || '',
-      notes: notes || '',
-      saleDate: saleDate || now,
-      createdAt: now,
-    };
-
-    addSale(newSale);
-
-    return NextResponse.json({
-      success: true,
-      data: newSale,
-    }, { status: 201 });
   } catch (error) {
     console.error('Error creating sale:', error);
     return NextResponse.json(

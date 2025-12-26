@@ -107,7 +107,7 @@ const Hero: React.FC = () => {
                 Mobile Accessories
               </span>
               <br className="hidden sm:block" />
-              {' '}Store in Ja-Ela
+              {' '}Store{settings?.address?.line2 ? ` in ${settings.address.line2.split(',')[0]}` : ''}
             </h1>
           </div>
 

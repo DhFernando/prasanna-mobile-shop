@@ -25,7 +25,11 @@ const Contact: React.FC = () => {
     if (settings?.address?.googleMapsUrl) {
       return generateMapsEmbedUrl(settings.address.googleMapsUrl);
     }
-    return 'https://maps.google.com/maps?q=Prasanna+Mobile+Center+Ja-Ela&output=embed';
+    // Fallback to address-based search
+    const address = settings?.address?.line1 && settings?.address?.line2 
+      ? `${settings.address.line1} ${settings.address.line2}` 
+      : settings?.siteName || 'Mobile Store';
+    return `https://maps.google.com/maps?q=${encodeURIComponent(address)}&output=embed`;
   }, [settings?.address?.googleMapsEmbed, settings?.address?.googleMapsUrl]);
   
   return (
@@ -73,7 +77,7 @@ const Contact: React.FC = () => {
             </div>
             <div className="animate-fade-in-up animation-delay-200">
               <BodyText size="lg" className={isDark ? 'text-stone-400' : 'text-stone-600'}>
-                We&apos;re conveniently located on Old Negombo Road in Ja-Ela. 
+                We&apos;re conveniently located at {settings?.address?.line1 || 'our store'}. 
                 Stop by anytime during business hours!
               </BodyText>
             </div>
@@ -273,7 +277,7 @@ const Contact: React.FC = () => {
               <div className="mt-4 text-center">
                 <p className={`text-sm flex items-center justify-center gap-2 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
                   <span className="text-lg">📍</span>
-                  Located on Old Negombo Road, Ja-Ela - Easy to find!
+                  {settings?.address?.line1 ? `Located at ${settings.address.line1}` : 'Easy to find!'} - Visit us today!
                 </p>
               </div>
             </div>

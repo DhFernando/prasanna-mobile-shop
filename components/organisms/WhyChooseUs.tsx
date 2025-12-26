@@ -3,10 +3,19 @@
  * Features and benefits section with distinctive design
  */
 
+'use client';
+
 import React from 'react';
 import { SectionHeading, BodyText, Subtitle, Icon } from '../atoms';
+import { useSiteSettings } from '@/lib/site-settings-context';
+import { useTheme } from '@/lib/theme';
 
 const WhyChooseUs: React.FC = () => {
+  const { settings } = useSiteSettings();
+  const { isDark, currentTheme } = useTheme();
+  
+  // Extract first word from site name for branding
+  const brandName = settings?.siteName?.split(' ')[0] || 'Our';
   const features = [
     {
       title: 'Genuine Products',
@@ -43,14 +52,17 @@ const WhyChooseUs: React.FC = () => {
   ];
 
   return (
-    <section className="py-24 sm:py-32 relative overflow-hidden">
+    <section className={`py-24 sm:py-32 relative overflow-hidden ${isDark ? 'bg-stone-900' : ''}`}>
       {/* Background */}
       <div className="absolute inset-0 -z-10">
-        <div className="absolute inset-0 bg-gradient-to-br from-teal-50 via-white to-orange-50/30" />
-        <div className="absolute inset-0 grid-pattern opacity-40" />
+        <div className={`absolute inset-0 ${isDark ? 'bg-gradient-to-br from-stone-900 via-stone-900 to-stone-800' : 'bg-gradient-to-br from-teal-50 via-white to-orange-50/30'}`} />
+        <div className={`absolute inset-0 grid-pattern ${isDark ? 'opacity-20' : 'opacity-40'}`} />
         {/* Decorative elements */}
-        <div className="absolute top-40 left-[5%] w-80 h-80 bg-teal-200/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-20 right-[10%] w-96 h-96 bg-amber-200/20 rounded-full blur-3xl" />
+        <div 
+          className="absolute top-40 left-[5%] w-80 h-80 rounded-full blur-3xl" 
+          style={{ background: isDark ? `${currentTheme.primaryHex}10` : `${currentTheme.primaryHex}15` }}
+        />
+        <div className={`absolute bottom-20 right-[10%] w-96 h-96 rounded-full blur-3xl ${isDark ? 'bg-amber-500/10' : 'bg-amber-200/20'}`} />
       </div>
       
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -61,13 +73,13 @@ const WhyChooseUs: React.FC = () => {
               <Subtitle className="mb-4">Why Choose Us</Subtitle>
             </div>
             <div className="animate-fade-in-up animation-delay-100">
-              <SectionHeading className="mb-6">
-                The <span className="gradient-text">Prasanna</span> Difference
+              <SectionHeading className={`mb-6 ${isDark ? 'text-white' : ''}`}>
+                The <span className="gradient-text">{brandName}</span> Difference
               </SectionHeading>
             </div>
             <div className="animate-fade-in-up animation-delay-200">
-              <BodyText size="lg" className="text-stone-600">
-                Here&apos;s why customers in Ja-Ela trust us for all their mobile accessory needs.
+              <BodyText size="lg" className={isDark ? 'text-stone-400' : 'text-stone-600'}>
+                Here&apos;s why customers trust us for all their mobile accessory needs.
               </BodyText>
             </div>
           </div>
@@ -77,36 +89,39 @@ const WhyChooseUs: React.FC = () => {
             {features.map((feature, index) => (
               <div 
                 key={feature.title}
-                className="
+                className={`
                   group
                   relative
-                  bg-white/80 backdrop-blur-sm
+                  backdrop-blur-sm
                   rounded-2xl
                   p-8 sm:p-10
-                  border border-stone-200/50
-                  hover:bg-white
-                  hover:border-stone-200
-                  hover:shadow-xl hover:shadow-stone-200/50
+                  border
                   transition-all duration-500
                   animate-fade-in-up
                   stagger-item
                   overflow-hidden
-                "
+                  ${isDark 
+                    ? 'bg-stone-800/80 border-stone-700 hover:bg-stone-800 hover:border-stone-600 hover:shadow-xl hover:shadow-stone-900/50' 
+                    : 'bg-white/80 border-stone-200/50 hover:bg-white hover:border-stone-200 hover:shadow-xl hover:shadow-stone-200/50'
+                  }
+                `}
                 style={{ 
                   animationDelay: `${index * 100}ms`,
                   animationFillMode: 'forwards'
                 }}
               >
                 {/* Large number watermark */}
-                <div className="
+                <div className={`
                   absolute -top-4 -right-2
                   font-display font-bold text-[120px] sm:text-[160px]
-                  text-stone-100
                   leading-none
                   select-none
-                  group-hover:text-teal-50
                   transition-colors duration-500
-                ">
+                  ${isDark 
+                    ? 'text-stone-700 group-hover:text-stone-600' 
+                    : 'text-stone-100 group-hover:text-teal-50'
+                  }
+                `}>
                   {String(index + 1).padStart(2, '0')}
                 </div>
 
@@ -127,17 +142,19 @@ const WhyChooseUs: React.FC = () => {
 
                   {/* Content */}
                   <div className="flex-1 pt-1">
-                    <h3 className="
+                    <h3 className={`
                       font-display font-semibold 
                       text-xl sm:text-2xl 
-                      text-stone-800 
                       mb-3
-                      group-hover:text-teal-700
                       transition-colors duration-300
-                    ">
+                      ${isDark 
+                        ? 'text-white group-hover:text-stone-100' 
+                        : 'text-stone-800 group-hover:text-teal-700'
+                      }
+                    `}>
                       {feature.title}
                     </h3>
-                    <BodyText muted className="text-base leading-relaxed">
+                    <BodyText muted className={`text-base leading-relaxed ${isDark ? 'text-stone-400' : ''}`}>
                       {feature.description}
                     </BodyText>
                   </div>
@@ -157,13 +174,16 @@ const WhyChooseUs: React.FC = () => {
 
           {/* Trust Indicator */}
           <div className="mt-16 text-center animate-fade-in-up animation-delay-600">
-            <div className="
+            <div className={`
               inline-flex items-center gap-4
               px-8 py-5
-              bg-white rounded-2xl
-              border border-stone-200
-              shadow-lg shadow-stone-100
-            ">
+              rounded-2xl
+              border
+              ${isDark 
+                ? 'bg-stone-800 border-stone-700 shadow-lg shadow-stone-900/50' 
+                : 'bg-white border-stone-200 shadow-lg shadow-stone-100'
+              }
+            `}>
               {/* Stars */}
               <div className="flex gap-1">
                 {[...Array(5)].map((_, i) => (
@@ -171,25 +191,23 @@ const WhyChooseUs: React.FC = () => {
                 ))}
               </div>
               
-              <div className="w-px h-10 bg-stone-200" />
+              <div className={`w-px h-10 ${isDark ? 'bg-stone-700' : 'bg-stone-200'}`} />
               
               <div className="text-left">
-                <p className="font-display font-bold text-2xl text-stone-900">5.0</p>
-                <p className="text-sm text-stone-500">Perfect Google Rating</p>
+                <p className={`font-display font-bold text-2xl ${isDark ? 'text-white' : 'text-stone-900'}`}>{settings?.googleRating?.rating || '5.0'}</p>
+                <p className={`text-sm ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>Google Rating</p>
               </div>
               
-              <div className="w-px h-10 bg-stone-200 hidden sm:block" />
+              <div className={`w-px h-10 hidden sm:block ${isDark ? 'bg-stone-700' : 'bg-stone-200'}`} />
               
               <a 
-                href="https://maps.app.goo.gl/X4Exp5vf855PqcfZ7"
+                href={settings?.address?.googleMapsUrl || 'https://maps.app.goo.gl/X4Exp5vf855PqcfZ7'}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="
-                  hidden sm:flex items-center gap-2
-                  text-teal-600 font-medium text-sm
-                  hover:text-teal-700
-                  transition-colors
-                "
+                className="hidden sm:flex items-center gap-2 font-medium text-sm transition-colors"
+                style={{ color: currentTheme.primaryHex }}
+                onMouseEnter={(e) => e.currentTarget.style.color = currentTheme.primaryDark}
+                onMouseLeave={(e) => e.currentTarget.style.color = currentTheme.primaryHex}
               >
                 <Icon name="google" size={18} />
                 <span>See reviews</span>
