@@ -53,12 +53,30 @@
       "itemName": "Tempered Glass Screen Protector",
       "quantity": 5,
       "unitPrice": 750,
-      "totalPrice": 3750,
+      "totalPrice": 4061,
       "customerName": "Chamara Fernando",
       "customerPhone": "071 555 1234",
       "notes": "Bulk purchase for shop",
-      "saleDate": "2024-12-24T09:00:00Z",
-      "createdAt": "2024-12-24T09:00:00Z"
+      "saleDate": "2024-12-24T00:00:00.000Z",
+      "createdAt": "2024-12-24T09:00:00Z",
+      "items": [
+        {
+          "id": "item-1766736413217-er7teoyl2",
+          "name": "Tempered Glass Screen Protector",
+          "quantity": 5,
+          "unitPrice": 750,
+          "totalPrice": 3750
+        },
+        {
+          "id": "item-1766736415197-ya38ehxy3",
+          "name": "ABC",
+          "quantity": 1,
+          "unitPrice": 345,
+          "totalPrice": 345
+        }
+      ],
+      "discount": 34,
+      "subtotal": 4095
     }
   ]
 }

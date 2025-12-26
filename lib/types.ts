@@ -205,11 +205,19 @@ export interface DashboardStats {
   outOfStockProducts: number;
 }
 
+// Hero Image type
+export interface HeroImage {
+  id: string;
+  url: string;
+  alt?: string;
+}
+
 // Site Settings (configurable by admin)
 export interface SiteSettings {
   siteName: string;
   tagline: string;
   description: string;
+  heroImages?: HeroImage[];  // Up to 5 hero background images
   contact: {
     phone: string;
     phoneInternational: string;

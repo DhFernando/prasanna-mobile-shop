@@ -19,6 +19,7 @@ const defaultSettings: SiteSettings = {
   siteName: 'Prasanna Mobile Center',
   tagline: 'Your Trusted Mobile Store in Ja-Ela',
   description: 'Quality mobile accessories, chargers, covers, and expert repairs.',
+  heroImages: [],
   contact: {
     phone: '072 290 2299',
     phoneInternational: '+94722902299',
