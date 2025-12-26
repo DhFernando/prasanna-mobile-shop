@@ -77,18 +77,31 @@ export interface Announcement {
   expiresAt: string | null;
 }
 
-// Sale/Transaction type
-export interface Sale {
+// Sale Item type (for multi-item sales)
+export interface SaleItem {
   id: string;
-  itemName: string;
+  name: string;
   quantity: number;
   unitPrice: number;
+  totalPrice: number;
+}
+
+// Sale/Transaction type (supports multiple items)
+export interface Sale {
+  id: string;
+  items: SaleItem[];
+  subtotal: number;
+  discount: number;
   totalPrice: number;
   customerName?: string;
   customerPhone?: string;
   notes?: string;
   saleDate: string;
   createdAt: string;
+  // Legacy single-item fields (for backward compatibility)
+  itemName?: string;
+  quantity?: number;
+  unitPrice?: number;
 }
 
 // Bill/Invoice type
@@ -161,10 +174,18 @@ export interface AnnouncementFormData {
   expiresAt: string | null;
 }
 
-export interface SaleFormData {
-  itemName: string;
+// Sale Item Form Data
+export interface SaleItemFormData {
+  id: string;
+  name: string;
   quantity: number;
   unitPrice: number;
+}
+
+// Sale Form Data (supports multiple items)
+export interface SaleFormData {
+  items: SaleItemFormData[];
+  discount: number;
   customerName?: string;
   customerPhone?: string;
   notes?: string;
