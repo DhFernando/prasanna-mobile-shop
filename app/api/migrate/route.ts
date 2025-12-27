@@ -72,6 +72,7 @@ const defaultAlertSettings = {
 };
 
 const defaultCategories = [
+  // Root Categories
   {
     id: "cat-1",
     name: "Phone Covers",
@@ -141,15 +142,252 @@ const defaultCategories = [
     order: 5,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
+  },
+  
+  // Phone Covers Subcategories
+  {
+    id: "cat-1-1",
+    name: "iPhone Cases",
+    slug: "iphone-cases",
+    description: "Cases for all iPhone models",
+    parentId: "cat-1",
+    level: 1,
+    path: ["phone-covers", "iphone-cases"],
+    image: "",
+    isActive: true,
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-1-2",
+    name: "Samsung Cases",
+    slug: "samsung-cases",
+    description: "Cases for Samsung Galaxy phones",
+    parentId: "cat-1",
+    level: 1,
+    path: ["phone-covers", "samsung-cases"],
+    image: "",
+    isActive: true,
+    order: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-1-3",
+    name: "Other Brands",
+    slug: "other-brands",
+    description: "Cases for Xiaomi, Oppo, Vivo, Realme etc.",
+    parentId: "cat-1",
+    level: 1,
+    path: ["phone-covers", "other-brands"],
+    image: "",
+    isActive: true,
+    order: 3,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // iPhone Cases Sub-subcategories
+  {
+    id: "cat-1-1-1",
+    name: "iPhone 15 Series",
+    slug: "iphone-15-series",
+    description: "Cases for iPhone 15, 15 Plus, 15 Pro, 15 Pro Max",
+    parentId: "cat-1-1",
+    level: 2,
+    path: ["phone-covers", "iphone-cases", "iphone-15-series"],
+    image: "",
+    isActive: true,
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-1-1-2",
+    name: "iPhone 14 Series",
+    slug: "iphone-14-series",
+    description: "Cases for iPhone 14, 14 Plus, 14 Pro, 14 Pro Max",
+    parentId: "cat-1-1",
+    level: 2,
+    path: ["phone-covers", "iphone-cases", "iphone-14-series"],
+    image: "",
+    isActive: true,
+    order: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Chargers Subcategories
+  {
+    id: "cat-2-1",
+    name: "Wall Chargers",
+    slug: "wall-chargers",
+    description: "USB and fast wall chargers",
+    parentId: "cat-2",
+    level: 1,
+    path: ["chargers", "wall-chargers"],
+    image: "",
+    isActive: true,
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-2-2",
+    name: "Car Chargers",
+    slug: "car-chargers",
+    description: "USB car chargers and adapters",
+    parentId: "cat-2",
+    level: 1,
+    path: ["chargers", "car-chargers"],
+    image: "",
+    isActive: true,
+    order: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-2-3",
+    name: "Cables",
+    slug: "cables",
+    description: "Lightning, USB-C, and Micro USB cables",
+    parentId: "cat-2",
+    level: 1,
+    path: ["chargers", "cables"],
+    image: "",
+    isActive: true,
+    order: 3,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-2-4",
+    name: "Wireless Chargers",
+    slug: "wireless-chargers",
+    description: "Qi wireless charging pads and stands",
+    parentId: "cat-2",
+    level: 1,
+    path: ["chargers", "wireless-chargers"],
+    image: "",
+    isActive: true,
+    order: 4,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Earphones Subcategories
+  {
+    id: "cat-3-1",
+    name: "Wireless Earbuds",
+    slug: "wireless-earbuds",
+    description: "True wireless Bluetooth earbuds",
+    parentId: "cat-3",
+    level: 1,
+    path: ["earphones", "wireless-earbuds"],
+    image: "",
+    isActive: true,
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-3-2",
+    name: "Wired Earphones",
+    slug: "wired-earphones",
+    description: "3.5mm, Type-C, and Lightning wired earphones",
+    parentId: "cat-3",
+    level: 1,
+    path: ["earphones", "wired-earphones"],
+    image: "",
+    isActive: true,
+    order: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-3-3",
+    name: "Headphones",
+    slug: "headphones",
+    description: "Over-ear and on-ear headphones",
+    parentId: "cat-3",
+    level: 1,
+    path: ["earphones", "headphones"],
+    image: "",
+    isActive: true,
+    order: 3,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Screen Protectors Subcategories
+  {
+    id: "cat-4-1",
+    name: "iPhone Screen Protectors",
+    slug: "iphone-screen-protectors",
+    description: "Tempered glass for all iPhone models",
+    parentId: "cat-4",
+    level: 1,
+    path: ["screen-protectors", "iphone-screen-protectors"],
+    image: "",
+    isActive: true,
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-4-2",
+    name: "Samsung Screen Protectors",
+    slug: "samsung-screen-protectors",
+    description: "Tempered glass for Samsung phones",
+    parentId: "cat-4",
+    level: 1,
+    path: ["screen-protectors", "samsung-screen-protectors"],
+    image: "",
+    isActive: true,
+    order: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Power Banks Subcategories
+  {
+    id: "cat-5-1",
+    name: "10000mAh",
+    slug: "10000mah",
+    description: "Compact 10000mAh power banks",
+    parentId: "cat-5",
+    level: 1,
+    path: ["power-banks", "10000mah"],
+    image: "",
+    isActive: true,
+    order: 1,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "cat-5-2",
+    name: "20000mAh+",
+    slug: "20000mah-plus",
+    description: "High capacity power banks",
+    parentId: "cat-5",
+    level: 1,
+    path: ["power-banks", "20000mah-plus"],
+    image: "",
+    isActive: true,
+    order: 2,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
   }
 ];
 
-// Sample products
+// Sample products - organized by subcategories (2+ items each)
 const defaultProducts = [
+  // iPhone 15 Series Cases (cat-1-1-1)
   {
     id: "prod-1",
     name: "iPhone 15 Pro Max Silicone Case - Black",
-    category: "phone-covers",
+    category: "iphone-15-series",
     price: 2500,
     description: "Premium silicone case with soft-touch finish. Perfect fit for iPhone 15 Pro Max.",
     image: "https://images.unsplash.com/photo-1603313011101-320f26a4f6f6?w=400",
@@ -161,10 +399,66 @@ const defaultProducts = [
   },
   {
     id: "prod-2",
+    name: "iPhone 15 Pro Clear MagSafe Case",
+    category: "iphone-15-series",
+    price: 3200,
+    description: "Crystal clear case with MagSafe compatibility. Shows off your phone's design.",
+    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+    published: true,
+    stockQuantity: 20,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-3",
+    name: "iPhone 15 Leather Wallet Case - Brown",
+    category: "iphone-15-series",
+    price: 4500,
+    description: "Premium leather wallet case with card slots. Elegant and functional.",
+    image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
+    published: true,
+    stockQuantity: 15,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // iPhone 14 Series Cases (cat-1-1-2)
+  {
+    id: "prod-4",
+    name: "iPhone 14 Pro Silicone Case - Navy",
+    category: "iphone-14-series",
+    price: 2200,
+    description: "Soft silicone case with microfiber lining. Navy blue color.",
+    image: "https://images.unsplash.com/photo-1603313011101-320f26a4f6f6?w=400",
+    published: true,
+    stockQuantity: 30,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-5",
+    name: "iPhone 14 Plus Armor Case",
+    category: "iphone-14-series",
+    price: 2800,
+    description: "Heavy duty protection with built-in kickstand. Military grade drop tested.",
+    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+    published: true,
+    stockQuantity: 18,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Samsung Cases (cat-1-2)
+  {
+    id: "prod-6",
     name: "Samsung Galaxy S24 Ultra Clear Case",
-    category: "phone-covers",
+    category: "samsung-cases",
     price: 1800,
-    description: "Crystal clear transparent case. Shows off your phone's design.",
+    description: "Crystal clear transparent case. Anti-yellowing technology.",
     image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
     published: true,
     stockQuantity: 30,
@@ -173,9 +467,65 @@ const defaultProducts = [
     updatedAt: new Date().toISOString()
   },
   {
-    id: "prod-3",
+    id: "prod-7",
+    name: "Samsung Galaxy S23 Flip Cover",
+    category: "samsung-cases",
+    price: 2500,
+    description: "Official style flip cover with card pocket. Auto sleep/wake function.",
+    image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
+    published: true,
+    stockQuantity: 22,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-8",
+    name: "Samsung Galaxy A54 Shockproof Case",
+    category: "samsung-cases",
+    price: 1200,
+    description: "Budget-friendly protection. Raised edges for camera and screen.",
+    image: "https://images.unsplash.com/photo-1603313011101-320f26a4f6f6?w=400",
+    published: true,
+    stockQuantity: 50,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Other Brands Cases (cat-1-3)
+  {
+    id: "prod-9",
+    name: "Xiaomi 14 Pro Frosted Case",
+    category: "other-brands",
+    price: 1500,
+    description: "Matte frosted finish. Anti-fingerprint coating.",
+    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+    published: true,
+    stockQuantity: 25,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-10",
+    name: "Oppo Reno 10 Pro+ Clear Case",
+    category: "other-brands",
+    price: 1300,
+    description: "Ultra-thin clear case. Perfect for showing off phone color.",
+    image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
+    published: true,
+    stockQuantity: 35,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Wall Chargers (cat-2-1)
+  {
+    id: "prod-11",
     name: "20W USB-C Fast Charger",
-    category: "chargers",
+    category: "wall-chargers",
     price: 3500,
     description: "Original quality 20W fast charger. Compatible with iPhone and Android.",
     image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
@@ -186,9 +536,9 @@ const defaultProducts = [
     updatedAt: new Date().toISOString()
   },
   {
-    id: "prod-4",
+    id: "prod-12",
     name: "65W GaN Fast Charger - 3 Port",
-    category: "chargers",
+    category: "wall-chargers",
     price: 5500,
     description: "Compact GaN charger with 2 USB-C and 1 USB-A port. Charges laptop and phones.",
     image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
@@ -199,87 +549,52 @@ const defaultProducts = [
     updatedAt: new Date().toISOString()
   },
   {
-    id: "prod-5",
-    name: "Wireless Bluetooth Earbuds Pro",
-    category: "earphones",
-    price: 4500,
-    description: "True wireless earbuds with ANC. 30 hours battery with case.",
-    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
-    published: true,
-    stockQuantity: 20,
-    stockStatus: "in_stock",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "prod-6",
-    name: "Wired Earphones with Mic - Type-C",
-    category: "earphones",
-    price: 850,
-    description: "High quality wired earphones with built-in mic. Type-C connector.",
-    image: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400",
+    id: "prod-13",
+    name: "10W Basic USB Charger",
+    category: "wall-chargers",
+    price: 800,
+    description: "Affordable basic charger. USB-A output.",
+    image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
     published: true,
     stockQuantity: 100,
     stockStatus: "in_stock",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
+  
+  // Car Chargers (cat-2-2)
   {
-    id: "prod-7",
-    name: "iPhone 15 Pro Tempered Glass 9H",
-    category: "screen-protectors",
-    price: 800,
-    description: "9H hardness tempered glass. Edge-to-edge protection with easy installation kit.",
-    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
-    published: true,
-    stockQuantity: 75,
-    stockStatus: "in_stock",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "prod-8",
-    name: "Samsung S24 Privacy Screen Protector",
-    category: "screen-protectors",
-    price: 1200,
-    description: "Privacy filter screen protector. Only visible from direct angle.",
-    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400",
-    published: true,
-    stockQuantity: 5,
-    stockStatus: "low_stock",
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
-  },
-  {
-    id: "prod-9",
-    name: "10000mAh Power Bank - Fast Charging",
-    category: "power-banks",
-    price: 3200,
-    description: "Slim power bank with 22.5W fast charging. LED display shows battery level.",
+    id: "prod-14",
+    name: "Dual USB Car Charger 24W",
+    category: "car-chargers",
+    price: 1500,
+    description: "Dual port car charger. 12W per port.",
     image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
     published: true,
-    stockQuantity: 35,
+    stockQuantity: 40,
     stockStatus: "in_stock",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
   {
-    id: "prod-10",
-    name: "20000mAh Power Bank with Cables",
-    category: "power-banks",
-    price: 4800,
-    description: "High capacity power bank with built-in Lightning and USB-C cables.",
+    id: "prod-15",
+    name: "USB-C PD Car Charger 45W",
+    category: "car-chargers",
+    price: 2800,
+    description: "Fast charging car adapter. USB-C PD + USB-A QC3.0.",
     image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
     published: true,
-    stockQuantity: 0,
-    stockStatus: "out_of_stock",
+    stockQuantity: 25,
+    stockStatus: "in_stock",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   },
+  
+  // Cables (cat-2-3)
   {
-    id: "prod-11",
+    id: "prod-16",
     name: "USB-C to Lightning Cable 1m",
-    category: "chargers",
+    category: "cables",
     price: 1500,
     description: "MFi certified cable. Supports fast charging for iPhone.",
     image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
@@ -290,15 +605,265 @@ const defaultProducts = [
     updatedAt: new Date().toISOString()
   },
   {
-    id: "prod-12",
-    name: "Magnetic Phone Holder for Car",
-    category: "phone-covers",
-    price: 1200,
-    description: "Strong magnetic car mount. 360 degree rotation.",
-    image: "https://images.unsplash.com/photo-1556656793-08538906a9f8?w=400",
+    id: "prod-17",
+    name: "USB-C to USB-C Cable 2m - 100W",
+    category: "cables",
+    price: 2200,
+    description: "Fast charging cable for laptops and phones. 100W power delivery.",
+    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
+    published: true,
+    stockQuantity: 45,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-18",
+    name: "Micro USB Cable 1m - Braided",
+    category: "cables",
+    price: 600,
+    description: "Durable braided cable for older Android phones.",
+    image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
+    published: true,
+    stockQuantity: 80,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Wireless Chargers (cat-2-4)
+  {
+    id: "prod-19",
+    name: "15W Wireless Charging Pad",
+    category: "wireless-chargers",
+    price: 2500,
+    description: "Qi certified wireless charger. LED indicator.",
+    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
+    published: true,
+    stockQuantity: 20,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-20",
+    name: "3-in-1 Wireless Charging Station",
+    category: "wireless-chargers",
+    price: 5500,
+    description: "Charges phone, watch, and earbuds simultaneously.",
+    image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
+    published: true,
+    stockQuantity: 10,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Wireless Earbuds (cat-3-1)
+  {
+    id: "prod-21",
+    name: "Wireless Bluetooth Earbuds Pro",
+    category: "wireless-earbuds",
+    price: 4500,
+    description: "True wireless earbuds with ANC. 30 hours battery with case.",
+    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
+    published: true,
+    stockQuantity: 20,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-22",
+    name: "Budget TWS Earbuds",
+    category: "wireless-earbuds",
+    price: 1800,
+    description: "Affordable wireless earbuds. Touch controls, 20hr battery.",
+    image: "https://images.unsplash.com/photo-1590658268037-6bf12165a8df?w=400",
+    published: true,
+    stockQuantity: 50,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-23",
+    name: "Sports TWS Earbuds - Waterproof",
+    category: "wireless-earbuds",
+    price: 3200,
+    description: "IPX7 waterproof earbuds. Secure fit for sports.",
+    image: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400",
+    published: true,
+    stockQuantity: 25,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Wired Earphones (cat-3-2)
+  {
+    id: "prod-24",
+    name: "Wired Earphones with Mic - Type-C",
+    category: "wired-earphones",
+    price: 850,
+    description: "High quality wired earphones with built-in mic. Type-C connector.",
+    image: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400",
+    published: true,
+    stockQuantity: 100,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-25",
+    name: "Lightning Earphones for iPhone",
+    category: "wired-earphones",
+    price: 1500,
+    description: "MFi certified Lightning earphones. In-line remote.",
+    image: "https://images.unsplash.com/photo-1484704849700-f032a568e944?w=400",
     published: true,
     stockQuantity: 40,
     stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Headphones (cat-3-3)
+  {
+    id: "prod-26",
+    name: "Over-Ear Bluetooth Headphones",
+    category: "headphones",
+    price: 6500,
+    description: "Premium over-ear headphones with ANC. 40hr battery.",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
+    published: true,
+    stockQuantity: 12,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-27",
+    name: "Gaming Headset with Mic",
+    category: "headphones",
+    price: 3800,
+    description: "Wired gaming headset with surround sound. RGB lighting.",
+    image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400",
+    published: true,
+    stockQuantity: 18,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // iPhone Screen Protectors (cat-4-1)
+  {
+    id: "prod-28",
+    name: "iPhone 15 Pro Max Tempered Glass 9H",
+    category: "iphone-screen-protectors",
+    price: 800,
+    description: "9H hardness tempered glass. Edge-to-edge protection with easy installation kit.",
+    image: "https://images.unsplash.com/photo-1601784551446-20c9e07cdbdb?w=400",
+    published: true,
+    stockQuantity: 75,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-29",
+    name: "iPhone 14/15 Privacy Glass",
+    category: "iphone-screen-protectors",
+    price: 1200,
+    description: "Privacy filter screen protector. Only visible from direct angle.",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400",
+    published: true,
+    stockQuantity: 35,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // Samsung Screen Protectors (cat-4-2)
+  {
+    id: "prod-30",
+    name: "Samsung S24 Ultra Tempered Glass",
+    category: "samsung-screen-protectors",
+    price: 900,
+    description: "Full coverage tempered glass for curved display.",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400",
+    published: true,
+    stockQuantity: 40,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-31",
+    name: "Samsung S24 Privacy Screen Protector",
+    category: "samsung-screen-protectors",
+    price: 1200,
+    description: "Privacy filter screen protector. Fingerprint compatible.",
+    image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?w=400",
+    published: true,
+    stockQuantity: 5,
+    stockStatus: "low_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // 10000mAh Power Banks (cat-5-1)
+  {
+    id: "prod-32",
+    name: "10000mAh Slim Power Bank",
+    category: "10000mah",
+    price: 2800,
+    description: "Ultra-slim design fits in pocket. 18W fast charging.",
+    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
+    published: true,
+    stockQuantity: 35,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-33",
+    name: "10000mAh Power Bank - LED Display",
+    category: "10000mah",
+    price: 3200,
+    description: "Power bank with LED display. 22.5W super fast charging.",
+    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
+    published: true,
+    stockQuantity: 28,
+    stockStatus: "in_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  
+  // 20000mAh+ Power Banks (cat-5-2)
+  {
+    id: "prod-34",
+    name: "20000mAh Power Bank with Cables",
+    category: "20000mah-plus",
+    price: 4800,
+    description: "High capacity power bank with built-in Lightning and USB-C cables.",
+    image: "https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400",
+    published: true,
+    stockQuantity: 0,
+    stockStatus: "out_of_stock",
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  },
+  {
+    id: "prod-35",
+    name: "30000mAh Laptop Power Bank",
+    category: "20000mah-plus",
+    price: 8500,
+    description: "65W PD output for laptops. Multiple ports.",
+    image: "https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?w=400",
+    published: true,
+    stockQuantity: 8,
+    stockStatus: "low_stock",
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   }
@@ -442,6 +1007,35 @@ export async function POST(request: NextRequest) {
 
     const db = await getDatabase();
     const results: Record<string, string> = {};
+
+    // Reseed action - clear and repopulate
+    if (action === 'reseed') {
+      // Clear all collections
+      await db.collection(COLLECTIONS.CATEGORIES).deleteMany({});
+      await db.collection(COLLECTIONS.PRODUCTS).deleteMany({});
+      await db.collection(COLLECTIONS.SALES).deleteMany({});
+      await db.collection(COLLECTIONS.ANNOUNCEMENTS).deleteMany({});
+      results.cleared = 'All data cleared';
+      
+      // Now seed fresh data
+      await db.collection(COLLECTIONS.CATEGORIES).insertMany(defaultCategories);
+      results.categories = `Created ${defaultCategories.length} categories`;
+      
+      await db.collection(COLLECTIONS.PRODUCTS).insertMany(defaultProducts);
+      results.products = `Created ${defaultProducts.length} products`;
+      
+      await db.collection(COLLECTIONS.SALES).insertMany(defaultSales);
+      results.sales = `Created ${defaultSales.length} sales`;
+      
+      await db.collection(COLLECTIONS.ANNOUNCEMENTS).insertMany(defaultAnnouncements);
+      results.announcements = `Created ${defaultAnnouncements.length} announcements`;
+      
+      return NextResponse.json({
+        success: true,
+        message: 'Database reseeded successfully',
+        results,
+      });
+    }
 
     if (action === 'seed' || action === 'all') {
       // Seed site settings if not exists
