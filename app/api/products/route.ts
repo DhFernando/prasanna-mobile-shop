@@ -2,16 +2,22 @@
  * Products API Route
  * GET - Fetch all products
  * POST - Create new product
+ * Uses MongoDB for data persistence
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getProducts, addProduct, generateId } from '@/lib/data';
+import { getProducts, addProduct } from '@/lib/db';
 import { Product, ProductFormData } from '@/lib/types';
+
+// Generate unique ID
+function generateId(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
 
 // GET all products
 export async function GET() {
   try {
-    const products = getProducts();
+    const products = await getProducts();
     return NextResponse.json({ success: true, data: products });
   } catch (error) {
     console.error('Error fetching products:', error);
@@ -49,7 +55,7 @@ export async function POST(request: NextRequest) {
       updatedAt: new Date().toISOString(),
     };
 
-    addProduct(newProduct);
+    await addProduct(newProduct);
     
     return NextResponse.json({ success: true, data: newProduct }, { status: 201 });
   } catch (error) {
@@ -60,4 +66,3 @@ export async function POST(request: NextRequest) {
     );
   }
 }
-

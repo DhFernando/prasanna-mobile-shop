@@ -1,12 +1,18 @@
 /**
  * Single Sale API Routes
- * GET - Fetch a single sale
- * PUT - Update a sale
+ * GET - Fetch a single sale by ID
+ * PUT - Update a sale (supports multi-item)
  * DELETE - Delete a sale
+ * Uses MongoDB for data persistence
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSaleById, updateSale, deleteSale } from '@/lib/data';
+import { getSaleById, updateSale, deleteSale } from '@/lib/db';
+
+// Generate unique ID for items
+function generateItemId(): string {
+  return `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
 
 // GET - Fetch single sale
 export async function GET(
@@ -15,7 +21,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const sale = getSaleById(id);
+    const sale = await getSaleById(id);
 
     if (!sale) {
       return NextResponse.json(
@@ -46,7 +52,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
 
-    const existingSale = getSaleById(id);
+    const existingSale = await getSaleById(id);
     if (!existingSale) {
       return NextResponse.json(
         { success: false, error: 'Sale not found' },
@@ -60,7 +66,7 @@ export async function PUT(
     if (body.items && Array.isArray(body.items)) {
       // Multi-item sale update
       const saleItems = body.items.map((item: { id?: string; name: string; quantity: number; unitPrice: number }) => ({
-        id: item.id || `item-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        id: item.id || generateItemId(),
         name: item.name,
         quantity: parseInt(String(item.quantity)),
         unitPrice: parseFloat(String(item.unitPrice)),
@@ -81,7 +87,7 @@ export async function PUT(
       updates.totalPrice = quantity * unitPrice;
     }
 
-    const updatedSale = updateSale(id, updates);
+    const updatedSale = await updateSale(id, updates);
 
     if (!updatedSale) {
       return NextResponse.json(
@@ -110,7 +116,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const deleted = deleteSale(id);
+    const deleted = await deleteSale(id);
 
     if (!deleted) {
       return NextResponse.json(

@@ -2,11 +2,17 @@
  * Sales API Routes
  * GET - Fetch all sales with optional filters and pagination
  * POST - Create a new sale (supports multiple items)
+ * Uses MongoDB for data persistence
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSales, addSale, generateId } from '@/lib/data';
+import { getSales, addSale } from '@/lib/db';
 import { Sale, SaleItem } from '@/lib/types';
+
+// Generate unique ID
+function generateId(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+}
 
 // Helper to get total items from a sale (handles both legacy and multi-item)
 function getSaleItemCount(sale: Sale): number {
@@ -48,7 +54,7 @@ export async function GET(request: NextRequest) {
     const sortBy = searchParams.get('sortBy') || 'saleDate';
     const sortOrder = searchParams.get('sortOrder') || 'desc';
 
-    let sales: Sale[] = getSales();
+    let sales: Sale[] = await getSales();
 
     // Apply search filter
     if (search) {
@@ -154,7 +160,7 @@ export async function POST(request: NextRequest) {
         createdAt: now,
       };
 
-      addSale(newSale);
+      await addSale(newSale);
 
       return NextResponse.json({
         success: true,
@@ -198,7 +204,7 @@ export async function POST(request: NextRequest) {
         createdAt: now,
       };
 
-      addSale(newSale);
+      await addSale(newSale);
 
       return NextResponse.json({
         success: true,

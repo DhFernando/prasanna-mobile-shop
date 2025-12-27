@@ -2,15 +2,16 @@
  * Site Settings API
  * GET: Fetch site settings
  * PUT: Update site settings (admin only)
+ * Uses MongoDB for data persistence
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getSiteSettings, updateSiteSettings } from '@/lib/data';
+import { getSiteSettings, updateSiteSettings } from '@/lib/db';
 import { SiteSettings } from '@/lib/types';
 
 export async function GET() {
   try {
-    const settings = getSiteSettings();
+    const settings = await getSiteSettings();
     return NextResponse.json({ success: true, data: settings });
   } catch (error) {
     console.error('Error fetching site settings:', error);
@@ -30,6 +31,7 @@ export async function PUT(request: NextRequest) {
       siteName: body.siteName,
       tagline: body.tagline,
       description: body.description,
+      heroImages: body.heroImages,
       contact: {
         phone: body.phone,
         phoneInternational: body.phoneInternational,
@@ -60,7 +62,7 @@ export async function PUT(request: NextRequest) {
       },
     };
 
-    const updated = updateSiteSettings(updates);
+    const updated = await updateSiteSettings(updates);
     return NextResponse.json({ success: true, data: updated });
   } catch (error) {
     console.error('Error updating site settings:', error);
@@ -70,4 +72,3 @@ export async function PUT(request: NextRequest) {
     );
   }
 }
-

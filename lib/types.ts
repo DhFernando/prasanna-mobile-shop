@@ -46,9 +46,11 @@ export interface CategoryWithChildren extends Category {
 export interface Alert {
   id: string;
   type: 'low_stock' | 'out_of_stock' | 'expiring_announcement' | 'custom';
-  title: string;
+  title?: string;
   message: string;
   productId?: string;
+  productName?: string;      // Product name for easier display
+  currentStock?: number;     // Current stock level
   threshold?: number;        // For low stock alerts
   isRead: boolean;
   isDismissed: boolean;
@@ -64,6 +66,13 @@ export interface AlertSetting {
   isEnabled: boolean;
   createdAt: string;
   updatedAt: string;
+}
+
+// Global alert settings
+export interface AlertSettings {
+  lowStockThreshold: number;
+  enableLowStockAlerts: boolean;
+  enableOutOfStockAlerts: boolean;
 }
 
 // Announcement type

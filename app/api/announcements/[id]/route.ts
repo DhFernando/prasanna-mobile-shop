@@ -3,10 +3,11 @@
  * GET - Fetch announcement by ID
  * PUT - Update announcement
  * DELETE - Delete announcement
+ * Uses MongoDB for data persistence
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getAnnouncementById, updateAnnouncement, deleteAnnouncement } from '@/lib/data';
+import { getAnnouncementById, updateAnnouncement, deleteAnnouncement } from '@/lib/db';
 
 // GET announcement by ID
 export async function GET(
@@ -15,7 +16,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const announcement = getAnnouncementById(id);
+    const announcement = await getAnnouncementById(id);
     
     if (!announcement) {
       return NextResponse.json(
@@ -43,7 +44,7 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    const updated = updateAnnouncement(id, body);
+    const updated = await updateAnnouncement(id, body);
     
     if (!updated) {
       return NextResponse.json(
@@ -69,7 +70,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const deleted = deleteAnnouncement(id);
+    const deleted = await deleteAnnouncement(id);
     
     if (!deleted) {
       return NextResponse.json(
@@ -87,5 +88,3 @@ export async function DELETE(
     );
   }
 }
-
-

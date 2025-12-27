@@ -3,10 +3,11 @@
  * GET - Fetch product by ID
  * PUT - Update product
  * DELETE - Delete product
+ * Uses MongoDB for data persistence
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { getProductById, updateProduct, deleteProduct } from '@/lib/data';
+import { getProductById, updateProduct, deleteProduct } from '@/lib/db';
 
 // GET product by ID
 export async function GET(
@@ -15,7 +16,7 @@ export async function GET(
 ) {
   try {
     const { id } = await params;
-    const product = getProductById(id);
+    const product = await getProductById(id);
     
     if (!product) {
       return NextResponse.json(
@@ -43,7 +44,10 @@ export async function PUT(
     const { id } = await params;
     const body = await request.json();
     
-    const updated = updateProduct(id, body);
+    const updated = await updateProduct(id, {
+      ...body,
+      updatedAt: new Date().toISOString(),
+    });
     
     if (!updated) {
       return NextResponse.json(
@@ -69,7 +73,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    const deleted = deleteProduct(id);
+    const deleted = await deleteProduct(id);
     
     if (!deleted) {
       return NextResponse.json(
@@ -87,5 +91,3 @@ export async function DELETE(
     );
   }
 }
-
-
